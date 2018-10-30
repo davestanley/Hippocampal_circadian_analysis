@@ -14,9 +14,6 @@ if ispc; userdir= getenv('USERPROFILE');
 else userdir= getenv('HOME'); 
 end
 
-% Change to correct working directory
-cd(fullfile(userdir,'GDrive','from_Dropbox','Career','2018','Insight Data Science Boston','demo'));
-
 % Setup paths
 restoredefaultpath
 addpath(genpath(fullfile(userdir,'GDrive','from_Dropbox','MATLAB')))
