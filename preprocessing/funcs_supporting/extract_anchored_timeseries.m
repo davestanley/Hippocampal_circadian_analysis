@@ -10,13 +10,13 @@ function [t,x] = extract_anchored_timeseries(ratN,chanN,fileN,offset,len,skip)
     
     
     %path_ratlog='../RatData_out';
-    path_ratlog = ('./Disk_inventory/RatData_out');
+    path_ratlog = ('../data/Disk_inventory/RatData_out');
 
     ratnum = num2str(ratN, '%6.3d');
     channum = num2str(chanN, '%6.2d');
     filenum = num2str(fileN,'%6.4d');
 
-    fname = ['~/Crystalized_deleteme/Raw/Evol/RawOneK_partial/Rat004OneK/Rat' ratnum 'ch' channum 'F' filenum '_DownSampled_Dec.bin'];
+    fname = ['../data/Raw/Evol/RawOneK_partial/Rat004OneK/Rat' ratnum 'ch' channum 'F' filenum '_DownSampled_Dec.bin'];
     
     fs=round(12207/12);
     
