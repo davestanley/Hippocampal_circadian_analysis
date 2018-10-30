@@ -32,7 +32,7 @@ len = 10000000;
 
 sampling = 100;
 traw=[];xraw=[];
-[traw, xraw] = extract_anchored_timeseries(ratN,chanN,21,offset,len,sampling-1);
+[traw, xraw] = extract_anchored_timeseries(ratN,chanN,22,offset,len,sampling-1);
 
 figure; plot_rawdata (traw,xraw);
 
