@@ -14,13 +14,16 @@ if ispc; userdir= getenv('USERPROFILE');
 else userdir= getenv('HOME'); 
 end
 
-% Setup paths
+% Setup paths to submodules and supporting functions
 restoredefaultpath
-addpath(genpath(fullfile(userdir,'GDrive','from_Dropbox','MATLAB')))
-addpath(genpath('~/src/ds_kb3/funcs_general'))
-addpath(genpath('~/src/chronux'))
-addpath(genpath('./funcs_supporting'));
-addpath(genpath('./funcs_plotting'));
+addpath(genpath(fullfile('..','submodules','lib_MAScPhD_Matlab')));
+addpath(genpath(fullfile('..','submodules','lib_dav')));
+addpath(genpath(fullfile('..','submodules','SigProc-Plott')));
+addpath(genpath(fullfile('..','submodules','chronux')));
+
+addpath(genpath('funcs_supporting'));         % Supporting processing functions
+addpath(genpath('funcs_plotting'));           % Plotting functions
+addpath('rParabEmd__L');                      % EMD code
 
 
 %% Load and plot 7 hours raw data
@@ -46,7 +49,7 @@ chanN = 2;
 fs=round(12207/12);
 offset = round(30*fs); len = round(12*fs);
 skip = 0;                                % Sampling rate of extracted data
-[t x] = extract_anchored_timeseries(ratN,chanN,22,offset,len,skip);
+[t, x] = extract_anchored_timeseries(ratN,chanN,22,offset,len,skip);
 t = t - t(1); t = t*24*3600;
 dt = mode(diff(t));
 fs = 1/dt;
@@ -59,7 +62,6 @@ figure; xarr = plot_frequencydecomp(t,x);
 
 
 %% Plot EMD
-addpath('./rParabEmd__L');
 
 if emd_from_scratch
     rParabEmd = rParabEmd__L (x, 40, 40, 1);
@@ -97,7 +99,7 @@ hold on; plot_thetahighlight(t,x,theta_delta_ratio); pause
 
 %% Theta state manual detection
 
-path_theta = (fullfile(userdir,'Crystalized','Anco','Evol','EEG','RatFFT','03_theta_delta_2sec_bins','Manual_compare_theta'));
+path_theta = (fullfile('..','data','Anco','Evol','EEG','RatFFT','03_theta_delta_2sec_bins','Manual_compare_theta'));
 
 % Load a set of 2-second epochs
 st = load(fullfile(path_theta,'RAll4_CT10_14.mat'));
