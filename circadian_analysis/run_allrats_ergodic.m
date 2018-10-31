@@ -7,22 +7,26 @@ function run_allrats_ergodic
     
     %% %%%%%% Set up paths %%%%%% 
     
+    % Setup display params
     format compact
-    if ispc; userdir= getenv('USERPROFILE'); 
-    else userdir= getenv('HOME'); 
+    
+    % Get home folder location
+    if ispc; userdir= getenv('USERPROFILE');
+    else userdir= getenv('HOME');
     end
     
+    % Setup paths to submodules and supporting functions
     restoredefaultpath
-    addpath(genpath(fullfile(userdir,'src','ds_kb3','funcs_general')));
-    addpath(genpath(fullfile(userdir,'GDrive','from_Dropbox','MATLAB')))
-    addpath(genpath(fullfile(userdir,'src','chronux')));
+    addpath(genpath(fullfile('..','submodules','lib_MAScPhD_Matlab')));
+    addpath(genpath(fullfile('..','submodules','lib_dav')));
+    addpath(genpath(fullfile('..','submodules','SigProc-Plott')));
+    addpath(genpath(fullfile('..','submodules','chronux')));
     addpath(fullfile('.','cosinor_dav'));
     addpath(fullfile('.','funcs_supporting'));
     addpath(fullfile('.','funcs_supporting_demo'));
     
+    
 
-    
-    
     %% %%%%%% Plot preprocessing parameters %%%%%% 
     
     recalc = 0;     % Re-extract all sinusoids for all frequency bands;
