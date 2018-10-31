@@ -1,9 +1,9 @@
 [submodule "lib_dav"]
-	path = lib_dav
+	path = submodules/lib_dav
 	url = git@github.com:davestanley-cogrhythms/lib_dav.git
 [submodule "lib_MAScPhD_Matlab"]
-	path = lib_MAScPhD_Matlab
+	path = submodules/lib_MAScPhD_Matlab
 	url = git@github.com:davestanley-PhD/lib_MAScPhD_Matlab.git
 [submodule "SigProc-Plott"]
-	path = SigProc-Plott
+	path = submodules/SigProc-Plott
 	url = git@github.com:davestanley/SigProc-Plott.git
