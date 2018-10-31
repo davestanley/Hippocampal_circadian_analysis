@@ -1,12 +1,15 @@
 
 function [t,x] = extract_anchored_timeseries(ratN,chanN,fileN,offset,len,skip)
+    % % Return values % %
+    % x - data values
+    % t - time in days
     plot_on = 0;
     if (~exist('ratN','var')); ratN=4; end
     if (~exist('chanN','var')); chanN=2; end
     if (~exist('fileN','var')); fileN=26; end
     if (~exist('offset','var')); offset=0; end
-    if (~exist('len','var')); len=26; end
-    if (~exist('skip','var')); skip=0; end
+    if (~exist('len','var')); len=26; end       % Length of data to read in samples
+    if (~exist('skip','var')); skip=0; end      % Number of datapoints to skip in samples
     
     
     %path_ratlog='../RatData_out';

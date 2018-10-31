@@ -30,9 +30,9 @@ chanN = 2;
 offset = 0;
 len = 10000000;
 
-sampling = 100;
+skip = 99;          % Only extract every hundredth data point to save space (fs = 
 traw=[];xraw=[];
-[traw, xraw] = extract_anchored_timeseries(ratN,chanN,22,offset,len,sampling-1);
+[traw, xraw] = extract_anchored_timeseries(ratN,chanN,22,offset,len,skip);
 
 figure; plot_rawdata (traw,xraw);
 
@@ -45,8 +45,8 @@ ratN = 4;
 chanN = 2;
 fs=round(12207/12);
 offset = round(30*fs); len = round(12*fs);
-sampling = 1;
-[t x] = extract_anchored_timeseries(ratN,chanN,22,offset,len,sampling-1);
+skip = 0;                                % Sampling rate of extracted data
+[t x] = extract_anchored_timeseries(ratN,chanN,22,offset,len,skip);
 t = t - t(1); t = t*24*3600;
 dt = mode(diff(t));
 fs = 1/dt;
