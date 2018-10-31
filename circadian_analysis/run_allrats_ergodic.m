@@ -955,7 +955,7 @@ function [h1, h2] = add_stimseiz2(ratN)
     h2 = [];
     ratnum = num2str(ratN, '%6.3d');
     if (ratN == 4) || (ratN == 9) || (ratN == 10) || (ratN == 1) 
-        sz_days = get_seizure_times (ratN,['../Disk_inventory/Seizures/R' ratnum 'FileInfo.mat']);
+        sz_days = get_seizure_times (ratN,['../data/Disk_inventory/Seizures/R' ratnum 'FileInfo.mat']);
         if ratN == 10; sz_days = sz_days(sz_days < 46); end
         h2 = add_vert_bars([sz_days],'r','LineWidth',2);
     end
