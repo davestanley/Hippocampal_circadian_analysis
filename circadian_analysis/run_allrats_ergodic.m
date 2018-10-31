@@ -191,6 +191,9 @@ function run_allrats_ergodic
         end
         
     end
+    
+    
+    %% %%%%%%%%%%%%%%%%%%%%%%%%%%% Cosinor analysis %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Pull out data from cosinor analysis on each rat, frequency band, and
     % stage
@@ -293,7 +296,9 @@ function run_allrats_ergodic
     end
     
     
-    
+    % Circle shifting of phases and confidence intervals.
+    % This code is extremely messed up and dated  ... don't look! (particularly the
+    % shift_thresholds_confid function)
     thresh = 0.20;
     if analyze_only_seizing
         CI_phi_min = shift_thresholds_confid(CI_phi_min,phi,thresh);
@@ -305,6 +310,8 @@ function run_allrats_ergodic
         phi = shift_thresholds(phi,thresh);
     end
     
+    % Converts confidence values into distance from phi, and then takes
+    % average for display purposes
     confid1 = abs(CI_phi_min - phi);
     confid2 = abs(CI_phi_max - phi);
     confid = (confid1 + confid2) / 2;
@@ -339,7 +346,7 @@ function run_allrats_ergodic
 
     end
     
-    %% %%%%%%%%%%%%%%%%%%%%%%%%%%% Conduct Plotting %%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% %%%%%%%%%%%%%%%%%%%%%%%%%%% Plotting %%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     
     % Plot images for individual rats
@@ -347,14 +354,13 @@ function run_allrats_ergodic
         plot_imagesc_individual(phi,Amp,compare_amp,analyze_only_seizing,za_fail,normalize_amps,rat2plot)
     end
     
-    
+    % Correlations
     if plot_amp_phase_correlation2
         func_plot_correlation(phi, Amp);
     end
     
     
     if plot_timeseries || plot_movingphase
-        
         %prepostchronic = 0;
         i=1;r=r4; [T{i} X{i}] = extract_ts(r,0, smoothmode_ts); 
         i=2;r=r9; [T{i} X{i}] = extract_ts(r,0, smoothmode_ts); 
