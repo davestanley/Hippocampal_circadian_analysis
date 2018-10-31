@@ -7,3 +7,6 @@
 [submodule "SigProc-Plott"]
 	path = submodules/SigProc-Plott
 	url = git@github.com:davestanley/SigProc-Plott.git
+[submodule "submodules/chronux"]
+	path = submodules/chronux
+	url = git@github.com:cogrhythms/chronux.git
