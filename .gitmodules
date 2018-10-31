@@ -1,0 +1,3 @@
+[submodule "lib_dav"]
+	path = lib_dav
+	url = git@github.com:davestanley-cogrhythms/lib_dav.git
