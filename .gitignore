@@ -28,7 +28,7 @@ solve_ode_*
 params.mat
 
 # Other .mat files
-*.mat
+#*.mat
 
 # Study folders
 study_*
@@ -38,3 +38,6 @@ study_*
 localOutput
 matlab_multi_node_batch.sh.*
 cluster_*
+
+# .mat log files that keep changing
+Rat*log.mat
