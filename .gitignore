@@ -28,6 +28,7 @@ solve_ode_*
 params.mat
 
 # Other .mat files
+*.mat
 
 # Study folders
 study_*
