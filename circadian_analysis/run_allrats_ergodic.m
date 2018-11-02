@@ -69,7 +69,7 @@ function run_allrats_ergodic
     %% %%%%%% Plot Choices %%%%%%     
     
         % Time series plots
-    plot_timeseries = 0;
+    plot_timeseries = 1;
         os.shift = 5;
         
         % Figs specifically for paper
@@ -98,10 +98,14 @@ function run_allrats_ergodic
         % Not used stuff
     plot_EEG_vs_spks2 = 0;  % New version. Takes into account smoothemode_ts and also has some better plotting options
         reload_spks = 0;
-    plot_EEG_vs_EEG_ampphase_corr = 1;          % This code measure correlation between cosinor amplitude and phase. 
+    plot_EEG_vs_EEG_ampphase_corr = 0;          % This code measure correlation between cosinor amplitude and phase. 
                                                 % I believe it can also be used to generate the moving windo amplitude and phase
                                                 % plots used in my thesis appendix
-    plot_movingphase = 0;   % CAn delete
+                                                
+                                                
+                                                
+        % Thesis figure
+    plot_movingphase = 0;       % Plots phase and amplitude changes through a moving window
         show_amp = 0;
         
    
