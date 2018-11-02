@@ -766,6 +766,34 @@ end
 
 
 function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
+
+    % This code goes through the entire dataset and identifies and removes
+    % data points associated with BAD FILES. Note that, although it scans
+    % the data points, it removes bad files wholesale.
+    % 
+    % The algorithm is:
+    % 1. Identify any data points exceeding prefilter_threshold standard
+    % deviations across the whole dataset.
+    %
+    % 2. Ignoring these data points, we then calculate an envelope using
+    % envelope_threshold. This is based on a 5-hour moving window. Any data
+    % points exceeding this envelope are marked as bad. Note that the
+    % original pre-filtering was necessary because they can skew the
+    % envelope calculation.
+    %
+    % 3. Of the data marked as bad, see how many bad data points each file
+    % contains. If a file contains more than 10 bad data points, mark ALL
+    % of the data associated with it as bad, so it can be rejected.
+    % 
+    % Notes:
+    % Each data point represents a 2-second bin. Each file contains about
+    % 7-hours of data. The total data set is ~40 hours for rat 9
+    %
+    % Rationale:
+    % The data points captured by prefilter_threshold are usually due to
+    % things like saturation (e.g., all 65535 values), whereas the bad data
+    % detected by the envelopes may be chewing artifacts, loose wires, etc.
+    
     
     if ~invert
         plot_on = 1;
@@ -809,7 +837,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     d_temp = [fliplr(d(1:ind)) d fliplr(d(ind2:end))];
     t_temp = [-1*fliplr(t(1:ind)) t t(end) + -1*(fliplr(t(ind2:end))-t(end)) ];        
     
-    % Find data exceeding prefilter_threshold
+    % Ignore data exceeding prefilter_threshold
     ind = d_temp < (mean(d_temp) + std(d_temp)*prefilter_threshold);
     
     % Get 5-hour moving average and std, for use in calculating envelope
@@ -851,6 +879,8 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     % Exclude any file having more than max_bad_datapoints_per_file bad datapoints
     ind = (nbad) >= max_bad_datapoints_per_file;
     bad_files = (filebins(ind));
+    
+    % Manually add some files we know are bad by visual inspection
     if ratN == 1; bad_files = [bad_files 188]; end
     if ratN == 1; bad_files = [bad_files 187 151 152 153 201 202 218 250 251 252 253 264 267 115 129 141 149 151:154]; end
     if ratN == 10; bad_files = [bad_files 5:11]; end        % Added to remove discontinuity during start.
@@ -883,7 +913,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
 end
 
 function bad_indices = smartfilter_datapoints(t,d0,invert)
-    plot_on = 1;
+    plot_on = 0;
     if ~invert
         bin_size = 5;
         envelope_threshold = 20;
