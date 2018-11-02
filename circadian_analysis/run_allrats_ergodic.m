@@ -49,15 +49,16 @@ function run_allrats_ergodic
     analyze_rawamp = 0;     % Use rawamp values in place of all amp data
     
     analyze_only_seizing = 1; % 1 for seizing group, 0 for non-seizing group, 2 for controls - only works for some codes!  
-    prepostchronic = 0;     % 0 for all; 1 for pre; 2 for latency; 3 for chronic
-    smoothmode_ts_main = 0;     % This is only used for extracting the initial Amp and phi arrays
+    prepostchronic = 3;     % 0 for all; 1 for pre; 2 for latency; 3 for chronic
+    smoothmode_ts_main = 0;     % This re-extracts the time series using extract_ts and then dropx
+                                % them back into r.ctrl.d, etc. 
                                 % Should be left as default (0) unless want to test effects of normalizing
     smoothmode_ts = 0 ;          % Used for plot_timeseries and princomp
                 % smoothmode_ts - Determines filter to apply to ts data
                 %    = -2 : derivative of unwrapped angle as determined by Hilbert transform
                 %    = -1 : 0 + estimate amplitude by taking variance
-                %    = 0 : Pre smoothing + baseline subtraction (default value of r.ctrl.d)
-                %    = 1 : No pre-smoothing
+                %    = 0 : Pre smoothing + baseline subtraction (default value of r.ctrl.d, which was pre-smoothed during recalc by ratscript_FFT_thetadelta2_arr)
+                %    = 1 : No pre-smoothing (based on r.all, which uses 1-hour non-overlapping timebins)
                 %    = 2 : Baseline signal: 1 day 90% aveage
                 %    = 3 : Pre smoothing - 6-hr 90% moving average
                 %    = 4 : 3 + Pull out amplitude based on cosine fit - cosfit not working, so for now is just taking variance (same as -1)
@@ -71,6 +72,7 @@ function run_allrats_ergodic
         % Time series plots
     plot_timeseries = 1;
         os.shift = 5;
+    plot_FFT = 0;
         
         % Figs specifically for paper
     plot_phasefits_shiftbands = 0;
@@ -212,6 +214,7 @@ function run_allrats_ergodic
     % Index format: (freq band, rat number, pre/acute/chronic)
     w = 2*pi/1.0;
     alpha = .05;
+    
     
     for i = 1:length(r1)
         % Seizing
@@ -427,6 +430,41 @@ function run_allrats_ergodic
                 end
         end
        
+    end
+    
+    if plot_FFT   
+        
+        i=1;r=r4; [T{i} X{i}] = extract_ts(r); 
+        i=2;r=r9; [T{i} X{i}] = extract_ts(r); 
+        i=3;r=r10; [T{i} X{i}] = extract_ts(r); 
+        i=4;r=r1; [T{i} X{i}] = extract_ts(r); 
+        
+        i=5;r=r5; [T{i} X{i}] = extract_ts(r); 
+        i=6;r=r8; [T{i} X{i}] = extract_ts(r);
+            T{i} = T{i}(1:end-4,:); X{i} = X{i}(1:end-4,:); % Don't display trailing data points to save space.
+        i=7;r=r11; [T{i} X{i}] = extract_ts(r); 
+        
+
+%         %% Plot FFT using daveFFT
+        for i = 1:4
+            t=T{i}(:,1); x = X{i}(:,1);
+            t = t*24; t = t-min(t);
+            [f F] = daveFFT(t,x,1); F = F(1:round(end/2)); f = f(1:round(end/2));
+            figure; plot(1./f,abs(F).^2);xlim([0 36]);ylim([0 1.75])
+            xlabel('Period (h)'); ylabel('Power');
+        end
+
+        %%% Plot FFT using pwelch
+%         for i = 1:4
+%             t=T{i}(:,2); x = X{i}(:,2);     % Do it just for theta band
+%             t = t*24; t = t-min(t);
+%             fs = 1;
+%             [P f] = pwelch(x,[fs*24*5],[fs*6],[],fs);
+%             index = (1./f < 36);
+% 
+%             figure; plot(1./f,P);xlim([0 36]);ylim([0 max(P(index))*2])
+%             xlabel('Period (h)'); ylabel('Power');
+%         end
     end
     
     

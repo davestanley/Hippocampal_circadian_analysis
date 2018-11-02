@@ -2,15 +2,17 @@
 
 
 function [T X] = extract_ts (r, prepostchronic, smoothmode_ts, zscore_on)
+    % Extracts time series data from r and applies smoothing as specified.
 
     if (~exist('prepostchronic','var')); prepostchronic=0; end
 %                             0 = all stages
 %                             1/2/3 = pre/post/chronic
     if (~exist('smoothmode_ts','var')); smoothmode_ts=0; end
 %                 smoothmode_ts - Determines filter to apply to ts data
+%                     = -2 : derivative of unwrapped angle as determined by Hilbert transform
 %                     = -1 : 0 + estimate amplitude by taking variance
-%                     = 0 : Pre smoothing + baseline subtraction
-%                     = 1 : No pre-smoothing
+%                     = 0 : Pre smoothing + baseline subtraction (default value of r.ctrl.d, which was pre-smoothed during recalc by ratscript_FFT_thetadelta2_arr)
+%                     = 1 : No pre-smoothing (based on r.all, which uses 1-hour non-overlapping timebins)
 %                     = 2 : Baseline signal: 1 day 90% aveage
 %                     = 3 : Pre smoothing - 6-hr 90% moving average
 %                     = 4 : 3 + Pull out amplitude based on cosine fit
@@ -196,7 +198,7 @@ function [T X] = extract_ts (r, prepostchronic, smoothmode_ts, zscore_on)
             X = diff(myangle);
             
         end
-        end
+    end
     
     index2 = ~isnan(X(:,1));
     X = X(index2,:);
