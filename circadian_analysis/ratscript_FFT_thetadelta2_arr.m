@@ -12,7 +12,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     if (~exist('extract_circadian_info','var')); extract_circadian_info=1; end  % Setting to 0 will skip calculating phases and just return powers. Used for generating data for "GetFigs"
     
     if (~exist('cosinor_mode','var')); cosinor_mode=1; end                      % Setting to 1 or 2 will prevent from running "get_phase" command
-                                                                                % Setting to 1 will return the theta band power (or "extract_band" if specified)
+                                                                                % Setting to 1 will return the theta band power (or "extract_band" if specified) in all epochs
                                                                                 % Setting to 2 will return the power in just theta epochs
                                                                                 % Setting to 3 will return the power in non-theta epochs
                                                                                 % Setting to 0 will return the theta epoch probability (data_binary)
@@ -20,13 +20,18 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     if (~exist('extract_band','var')); extract_band=[5 10]; end
     if isempty(timerange0); timerange0 = 0; end
 
+    %% Set up variables
+    % Set default figure color
+    set(0, 'DefaultFigureColor', 'White');
+    
+    % Set up paths
     matup_Mac
     
     ratio_thresh0 = 1.75;
 
     FS_axis = 20;
     FS_axis_sm = 14;
-    FS_axis_timeseries = 30;
+    FS_axis_timeseries = 20;
     start_from_scratch=1;
     smart_filter = 1;                   % If use smart filter, don't use the manual filters below.
         spect_from_scratch = 0;         % If set to 1, filter redo filtering of spectra
@@ -34,8 +39,8 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     use_tcell_search = 0;
     fract_maxgap0 = 0.9;
 
-    plot_on=0;
-        plot_filterdata = 0;
+    plot_on=1;
+        plot_filterdata = 0;                % Plots the results of smartfiler
         shift_1st_seizure_time_to_zero = 1;
         
     
@@ -58,7 +63,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
 %     elseif low_mid_high == 8; freq_band=[300 500];
 %     end
 
-
+    %% Seizure times
     ratnum = num2str(ratN, '%6.3d');
     channum = num2str(chanN, '%6.2d');
 
@@ -133,7 +138,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     end
 
 
-
+    %% Load data and run smartfilter code
     outlog_path = ['./Ratoutmat_FFT'];
     if start_from_scratch
         [outlog_path outlog_name] = save_log(path_ratlog, ratnum, outlog_path);   % Save log file
@@ -152,7 +157,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             % moving window envelope, and marks data points as bad that are
             % 20 standard deviations above.
             [t_temp d_temp] = extract_FFT_band(file2D,[0 100]);
-            bad_indices = smartfilter_files (t_temp,d_temp,file2D.fnum,0,ratN);
+            [bad_indices, badfiles] = smartfilter_files (t_temp,d_temp,file2D.fnum,0,ratN);
             bad_indices2 = smartfilter_files (t_temp,d_temp,file2D.fnum,1,ratN);
             bad_indices3 = bad_indices | bad_indices2;
 %             if ratN == 1;           
@@ -198,7 +203,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             plot(file2D.tabs,sum(file2D.F),'.')
             hold on; plot(file2D_cleaned.tabs,sum(file2D_cleaned.F),'r.')
             hold on; plot(t_temp(bad_indices4),d_temp(bad_indices4),'g.')
-            legend('original','good data','removed')
+            legend('original','good data','datapoints removed by smartfilter datapoints')
             xlabel('time days');
             
 %             t_temp = file2D.fnum;
@@ -214,7 +219,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
         clear file2D_cleaned
         
     else
-        load (['./wrkspc_Rat_temp2_' ratnum 'Ch' channum 'file2D.mat'])
+        load (['../data/16giganator/14a_def_chronux/wrkspc_Rat_temp2_' ratnum 'Ch' channum 'file2D.mat'])
         
 %         if ratN == 10; 
 %             bad_files = [10 11 18 21 33:35 43 45:51 61 62 5:9 52 53 57 64 44];
@@ -233,25 +238,27 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     end
     
     
-
-    [torig dfull] = extract_FFT_band (file2D,[0 100]);
-    [torig theta_serial] = extract_FFT_band (file2D,theta_band);
-    [torig delta_serial] = extract_FFT_band (file2D,delta_band);
+    %% Extract various frequency bands from data:
+        % 1-100 Hz; theta; delta; and chosen bands defined by extract_band
+    [torig, dfull] = extract_FFT_band (file2D,[0 100]);
+    [torig, theta_serial] = extract_FFT_band (file2D,theta_band);
+    [torig, delta_serial] = extract_FFT_band (file2D,delta_band);
     if cosinor_mode ~= 0;
         extract_serial = zeros(size(extract_band,1),length(torig));
         for i = 1:size(extract_band,1)
-            [torig extract_serial(i,:)] = extract_FFT_band (file2D,extract_band(i,:));
+            [torig, extract_serial(i,:)] = extract_FFT_band (file2D,extract_band(i,:));
         end
     else
         extract_serial = theta_serial;
     end
     
+    % Calculate theta states based on ratio
     ratio_serial = theta_serial ./ delta_serial;
     data_binary = ratio_serial > ratio_thresh0;
     
     
 
-
+    %% Adjust stimulation and seizure times as needed
     for ii = 1:length(fileNames);
         fileNums(ii) = str2num(fileNames{ii}(1:4));
     end
@@ -288,6 +295,10 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     if ratnum == '008' tabs_acute_1 = 5; tabs_ctrl_2 = 5; tabs_acute_2 = 17; end        % I chopped the ending of the acute period off for R8, since it seems to trail off.
     if ratnum == '005'; tabs_ctrl_2 = 3.193; tabs_acute_1 = 6.0; end
 
+    %% Calculate power in each band under various conditions
+        % (I'm kind of ignoring this code; don't think it's useful)
+        
+    % Calculates the power in a given time range
     data_struct.power_timerange.theta = calculate_powers (torig,theta_serial,timerange0);
     data_struct.power_timerange.delta = calculate_powers (torig,delta_serial,timerange0);
     data_struct.theta_fract = calculate_powers (torig,data_binary,timerange0);
@@ -324,6 +335,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     
     if extract_circadian_info
     
+        %% Calculate 1-hour bins of data (from our earlier 2-second bins)
         bin_size = 1/24;
         fract_overlap = 0.0;
         fract_maxgap = fract_maxgap0;
@@ -358,17 +370,14 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
         
 
 
-%         data_serial = data_serial / mean(data_serial);
+        % Data in 1-hour bins
         ds = abs(downsample(data_serial, 1));
         ts = downsample(times_serial, 1);
-        if plot_on
-            figure; set(gcf,'Color','w')
-            %plot(torig_theta,theta_in_theta/mean(theta_in_theta))
-            hold on; plot(ts, ds,'.b');
-%             xlabel ('Time (days)','FontSize',FS_axis);
-%             ylabel('� EMD Amp','FontSize',FS_axis);
-        end
+        
+        
+        %% Do 6-hour and 24-hour moving averages
 
+        % 6-hour moving average
         bin_size = 6/24;
         fract_overlap = 0.9;
         fract_maxgap = fract_maxgap0;
@@ -379,19 +388,18 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             dat_sm = ds;
         end
 
+        % 1-day moving average
         bin_size = 1;
         fract_overlap = 0.9;
         fract_maxgap = fract_maxgap0;
         [t_base dat_base] = daveMVAVG_MAT (ts, ds, bin_size, fract_overlap, fract_maxgap);
 
 
-
-
-        if plot_on; hold on; plot(t_sm, dat_sm, 'k.','MarkerSize',18); end
-
-        dat_basei = interp1(t_base,dat_base, t_sm);
-        dat_sub = dat_sm - dat_basei;
         if plot_on
+            figure('Position',[347, 408, 1321, 527]); set(gcf,'Color','w')
+            hold on; plot(ts, ds,'.b');
+            hold on; plot(t_sm, dat_sm, 'k.','MarkerSize',18);
+            
             %hold on; plot(t_sm, dat_basei, 'k')
             hold on; plot(t_base, dat_base, 'Color',[0 0.5 0],'LineWidth',2);
             hold on; plot([tabs_ctrl_1 tabs_ctrl_1],[0 max(max(dat_sm))],'k','LineWidth',2);
@@ -407,14 +415,16 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             for kk = 1:max(t_sm);
                 hold on; plot([kk kk], [min(min(dat_sm)) max(max(dat_sm))*2],'k-.');
             end
-            legend('original','smoothed','baseline');
+            legend('1-hour binned data','6-hour smoothed','1-day smoothed');
+            xlabel('Time (days)');
+            ylabel ('Power in [extract band]');
             set(gca,'FontSize',FS_axis_timeseries);
         end
 
         if shift_1st_seizure_time_to_zero && plot_on
             day_of_SE = floor(stim_tabs);
 
-            figure; set(gcf,'Color','w')
+            figure('Position',[347, 408, 1321, 527]); set(gcf,'Color','w')
             %hold on; plot(ts-day_of_SE, ds);
 %             xlabel ('Time (days)','FontSize',FS_axis);
 %             ylabel('� EMD Amp','FontSize',FS_axis);
@@ -435,12 +445,22 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             for kk = 1:max(t_sm);
                 hold on; plot([kk kk]-day_of_SE, [min(min(dat_sm)) max(max(dat_sm))*2],'k-.');
             end
-            %legend('original','smoothed','baseline');
+            legend('1-hour binned data','6-hour smoothed','1-day smoothed');
+            xlabel('Time (days)');
+            ylabel ('Power in [extract band]');
             set(gca,'FontSize',FS_axis_timeseries);
+            %legend('original','smoothed','baseline');
+            %set(gca,'FontSize',FS_axis_timeseries);
         end
+        
+        % Interpolate baseline to be same spacing as t_sm, and do baseline
+        % subtraction
+        dat_basei = interp1(t_base,dat_base, t_sm);
+        dat_sub = dat_sm - dat_basei;
 
+        % Plot baseline subtracted data
         if plot_on
-            figure; plot(t_sm, dat_sub);
+            figure('Position',[347, 408, 1321, 527]); plot(t_sm, dat_sub,'k.-','MarkerSize',18);
             hold on; plot([tabs_ctrl_1 tabs_ctrl_1],[min(min(dat_sub)) max(max(dat_sub))],'k');
             hold on; plot([tabs_ctrl_2 tabs_ctrl_2],[min(min(dat_sub)) max(max(dat_sub))],'k');
             hold on; plot([tabs_acute_1 tabs_acute_1],[min(min(dat_sub)) max(max(dat_sub))],'m');
@@ -454,8 +474,10 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             for kk = 1:max(t_sm);
                 hold on; plot([kk kk], [min(min(dat_sub)) max(max(dat_sub))*2],'k-.');
             end
-            xlabel('time, (days)','FontSize',FS_axis); ylabel('� EMD Amp','FontSize',FS_axis);
-            set(gca,'FontSize',FS_axis_timeseries);
+            legend('1-hour binned data','6-hour smoothed','1-day smoothed');
+            xlabel('Time (days)');
+            ylabel ('Power in [extract band]');
+            set(gca,'FontSize',FS_axis_timeseries);            
         end
 
         %     [A phi t_sin] = fit_sinusoids (t_sm, dat_sub, 1.0);
@@ -464,7 +486,9 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
         %     subplot(212); plot(t_sin, phi);
 
 
-
+        %% This would originally do the cosinor fits, but now just drops the data into the structure
+        % Does this for ctrl, latent, and chronic stages
+        
         % % % % %     Average everything
         %     t_smm= mod(t_sm, 1);
         %     [A phi t_sin] = fit_sinusoids (t_smm, dat_sub, 1.0);
@@ -537,6 +561,8 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             end
         end
 
+        
+        %% Pack everything into data structure. 
         data_struct.all.t = times_serial;
         data_struct.all.d = data_serial;
         data_struct.all.stim_tabs = stim_tabs;
