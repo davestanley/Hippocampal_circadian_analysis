@@ -147,6 +147,10 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
         file2D = clean_file2D (file2D, file2D.tabs < 0 ); % Remove timepoints that are < 0
         
         if spect_from_scratch
+            % Remove any bad files. First removes data points 10 standard
+            % deviations above the entire dataset. Then, generates a 5-hour
+            % moving window envelope, and marks data points as bad that are
+            % 20 standard deviations above.
             [t_temp d_temp] = extract_FFT_band(file2D,[0 100]);
             bad_indices = smartfilter_files (t_temp,d_temp,file2D.fnum,0,ratN);
             bad_indices2 = smartfilter_files (t_temp,d_temp,file2D.fnum,1,ratN);
@@ -157,7 +161,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
 %                 bad_indices3b = smartfilter_files (t_temp2,d_temp2,file2D.fnum,0,ratN);
 %                 bad_indices3 = [bad_indices3 | bad_indices3b]; clear bad_indices3b t_temp2 d_temp2; end
             
-            
+            % Of the files that remain, remove any bad data points (above 20x standard deviations)
             bad_indices4 = smartfilter_datapoints(t_temp(~bad_indices3),d_temp(~bad_indices3),0);
             if ratN == 1; bad_indices4b = smartfilter_datapoints(t_temp(~bad_indices3),d_temp(~bad_indices3),1); bad_indices4 = [bad_indices4 | bad_indices4b]; clear bad_indices4b; end
             if ratN == 11; bad_indices4b = (t_temp(~bad_indices3)>=1.92 & t_temp(~bad_indices3)<=2.5); bad_indices4 = [bad_indices4 | bad_indices4b]; clear bad_indices4b; end
@@ -765,13 +769,21 @@ function file2D_cleaned = clean_file2D (file2D,bad_indices)
 end
 
 
-function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
+function [bad_indices, bad_files] = smartfilter_files (t,d0,fnum,invert,ratN)
 
-    % This code goes through the entire dataset and identifies and removes
-    % data points associated with BAD FILES. Note that, although it scans
-    % the data points, it removes bad files wholesale.
+    % This code goes through the entire dataset and identifies bad data
+    % points and then removes BAD FILES associated with that bad data. It
+    % Does this on the basis of how much bad data
+    % they contain.
+    %
+    % The return value [bad_indices] flags all indices of d0 corresponding
+    % to each file identified as bad.
+    
+    % Rationale: We do this file-by-file mainly for validation purposes.
+    % We can easily load a whole file and visually identify it as good or
+    % bad, or see what's going on.
     % 
-    % The algorithm is:
+    % The algorithm is as follows:
     % 1. Identify any data points exceeding prefilter_threshold standard
     % deviations across the whole dataset.
     %
@@ -800,7 +812,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     
     
     if ~invert
-        plot_on = 1;
+        plot_on = 0;
         bin_size = 5;
         prefilter_threshold = 10;
         envelope_threshold = 20;
@@ -809,7 +821,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
             prefilter_threshold = 2.5;
         end
     else
-        plot_on = 1;
+        plot_on = 0;
         bin_size = 5;
         prefilter_threshold = 0.2;
         envelope_threshold = 15;
@@ -919,6 +931,9 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
 end
 
 function bad_indices = smartfilter_datapoints(t,d0,invert)
+    % Works similar to smartfilter_files, but identifies bad data points
+    % within files. Assumes it's only working with good files at this
+    % stage.
     plot_on = 0;
     if ~invert
         bin_size = 5;
@@ -952,8 +967,6 @@ function bad_indices = smartfilter_datapoints(t,d0,invert)
     %envelope = temp + interp1(t_sm,d_std,t)*envelope_threshold;
     
     bad_indices = d > envelope;
-    
-    
     
     
     if plot_on
