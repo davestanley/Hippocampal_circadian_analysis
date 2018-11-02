@@ -20,7 +20,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     if (~exist('extract_band','var')); extract_band=[5 10]; end
     if isempty(timerange0); timerange0 = 0; end
 
-    
+    matup_Mac
     
     ratio_thresh0 = 1.75;
 
@@ -143,7 +143,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
     load ([outlog_path '/' outlog_name])    % Load log file
 
     if smart_filter
-        load (['../14a_def_chronux/wrkspc_Rat_temp2_' ratnum 'Ch' channum 'file2D.mat'])
+        load (['../data/16giganator/14a_def_chronux/wrkspc_Rat_temp2_' ratnum 'Ch' channum 'file2D.mat'])            % Loads the full PSD dataset
         file2D = clean_file2D (file2D, file2D.tabs < 0 ); % Remove timepoints that are < 0
         
         if spect_from_scratch
@@ -772,7 +772,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
         bin_size = 5;
         prefilter_threshold = 10;
         envelope_threshold = 20;
-        max_allowed_badfiles = 10;
+        max_bad_datapoints_per_file = 10;
         if ratN == 7
             prefilter_threshold = 2.5;
         end
@@ -781,7 +781,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
         bin_size = 5;
         prefilter_threshold = 0.2;
         envelope_threshold = 15;
-        max_allowed_badfiles = 10;
+        max_bad_datapoints_per_file = 10;
         invertmax = 1/5;
         invertmax = 1/5 * 3276700^2 / (1e3)^2;
         if ratN == 1
@@ -789,7 +789,7 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
             % below I just filter out the low-amp data points point-by-point
 %             invertmax = 1/100;
 %             envelope_threshold = 10;
-            max_allowed_badfiles = 500;
+            max_bad_datapoints_per_file = 500;
         end
         if ratN == 7
             envelope_threshold = 5;
@@ -802,15 +802,22 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     else
         d = d0;
     end
-    mrksize = 20;
+    
+    % Build a padded dataset (for use in moving averages)
     ind = find(t > bin_size,1,'first');
     ind2 = find(t > t(end) - bin_size,1,'first');
     d_temp = [fliplr(d(1:ind)) d fliplr(d(ind2:end))];
-    t_temp = [-1*fliplr(t(1:ind)) t t(end) + -1*(fliplr(t(ind2:end))-t(end)) ];
+    t_temp = [-1*fliplr(t(1:ind)) t t(end) + -1*(fliplr(t(ind2:end))-t(end)) ];        
+    
+    % Find data exceeding prefilter_threshold
     ind = d_temp < (mean(d_temp) + std(d_temp)*prefilter_threshold);
-    [t_sm d_sm d_std] = daveMVAVG_bin (t_temp(ind), d_temp(ind), bin_size, 0.5, 0.9,0); % Take average time spent in theta state.
+    
+    % Get 5-hour moving average and std, for use in calculating envelope
+    [t_sm, d_sm, d_std] = daveMVAVG_bin (t_temp(ind), d_temp(ind), bin_size, 0.5, 0.9,0);
 
+    
     if plot_on
+        mrksize = 20;
         figure; plot(t,d,'b.','MarkerSize',mrksize)
         hold on; plot(t_temp(ind), d_temp(ind),'k.','MarkerSize',mrksize)
         if ~invert hold on; errorbar(t_sm,d_sm,d_std*envelope_threshold,'r.','MarkerSize',mrksize)
@@ -822,26 +829,27 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     end
     clear ind ind2
     
+    % Find original data exceeding the envelope
     temp = interp1(t_sm,d_sm,t);
-    %if ~invert envelope = temp + temp*envelope_threshold;
     if ~invert envelope = temp + interp1(t_sm,d_std,t)*envelope_threshold;
     else envelope = temp + temp*envelope_threshold; end
     ind = d > envelope;
-    bad_files_candidates = fnum(ind);
+    fnum_bads = fnum(ind);
     
     filebins = unique(fnum);
     [nfiles] = hist(fnum,filebins);
-    [nbad] = hist(bad_files_candidates,filebins);
+    [nbad] = hist(fnum_bads,filebins);
     
     if plot_on
-%         figure;
-%         subplot(311); bar(filebins,nfiles)
-%         subplot(312); bar(filebins,nbad)
-%         subplot(313); bar(filebins,nbad./nfiles)
+        figure;
+        subplot(311); bar(filebins,nfiles); title('# datapoints vsfiles');
+        subplot(312); bar(filebins,nbad); title('# bad datapoints vs files');
+        subplot(313); bar(filebins,nbad./nfiles); title('Fraction of bad data points in each file');
+        xlabel('File number');
     end
     
-    %ind = (nbad./nfiles) > 0.001;
-    ind = (nbad) >= max_allowed_badfiles;
+    % Exclude any file having more than max_bad_datapoints_per_file bad datapoints
+    ind = (nbad) >= max_bad_datapoints_per_file;
     bad_files = (filebins(ind));
     if ratN == 1; bad_files = [bad_files 188]; end
     if ratN == 1; bad_files = [bad_files 187 151 152 153 201 202 218 250 251 252 253 264 267 115 129 141 149 151:154]; end
@@ -857,10 +865,15 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
 
 
     if plot_on
-       figure; plot(t,d,'b.');
-       hold on; plot(t(~bad_indices),d(~bad_indices),'k.')
-       figure; plot(fnum,d,'b.');
+       figure('Position',[680   155   640   823]);
+       subplot(211); plot(t,d,'b');
+       hold on; plot(t(~bad_indices),d(~bad_indices),'k')
+       legend('all data','good data');
+       xlabel('Time (h)'); ylabel('Power (1-100 Hz');
+       subplot(212); plot(fnum,d,'b.');
        hold on; plot(fnum(~bad_indices),d(~bad_indices),'k.')
+       xlabel('Files');
+       legend('all data','good data'); ylabel('Power (1-100 Hz');
        
 %        figure; plot(t,log(d),'b.');
 %        hold on; plot(t(~bad_indices),log(d(~bad_indices)),'k.')
