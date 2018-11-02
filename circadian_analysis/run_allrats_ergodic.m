@@ -86,11 +86,12 @@ function run_allrats_ergodic
 
         % Correlation Plots
     plot_corrcoef_EEG_vs_EEG = 0; % IT's okay, this is fast.
-    plot_princomp = 0;
+    plot_princomp = 0;              % Standard PCA analysis
+    plot_princomp2 = 1;             % Look at PCA across stages (pre, post, chronic)
     plot_corr_phaseshift = 0;       % Measure how well each frequency band correlates with the band that phase shifts; plots as a subset of plot_corrcoef_EEG_vs_EEG
     plot_princomp_amp_vs_ampraw = 0; % Correlation coefficient
     plot_corrcoef_all = 0;              % Look for correlations in everything - EEG amplitude, baseline, and 
-    plot_EEG_vs_baseline_corr = 1;      % Compare changes in basline to circadian amp. Need to set smoothmode_ts to -1
+    plot_EEG_vs_baseline_corr = 0;      % Compare changes in basline to circadian amp. Need to set smoothmode_ts to -1
 
     
     
@@ -441,6 +442,52 @@ function run_allrats_ergodic
         
         func_plot_PCA(rcell_curr, prepostchronic, smoothmode_ts)
         
+        
+    end
+    
+    if plot_princomp2
+        
+        
+        % Index format: (rat number, pre/acute/chronic)
+        clear T X
+        for k=1:3 % 0 for all; 1 for pre; 2 for latency; 3 for chronic
+            i=1;r=r4; [T{i,k} X{i,k}] = extract_ts(r, k); 
+            i=2;r=r9; [T{i,k} X{i,k}] = extract_ts(r, k); 
+            i=3;r=r10; [T{i,k} X{i,k}] = extract_ts(r, k); 
+            i=4;r=r1; [T{i,k} X{i,k}] = extract_ts(r, k); 
+        end
+        
+        
+        Mcoef = zeros([size(X,1),size(X,2),length(r),length(r)]);
+        Mlatent = zeros(size(X,1),size(X,2),length(r));
+        princphi = zeros(size(X,1),size(X,2),length(r));
+        for i = 1:size(X,1)
+            for j = 1:size(X,2)
+                [Mcoef(i,j,:,:), Sscore{i,j}, Mlatent(i,j,:)] = pca(X{i,j});
+                for k = 1:size(Sscore{i,j},2)
+                    dat{i,j,k} = cosinor_struct(T{i,j}(:,1),Sscore{i,j}(:,k),w,alpha,0);
+                    princphi(i,j,k) = dat{i,j,k}.phi;
+                    princpass(i,j,k) = dat{i,j,k}.p_3a;
+                end
+            end
+        end
+        
+        
+        princphi = shift_thresholds(princphi,thresh);
+        for j = 1:3
+           figure; imagesc(squeeze(princphi(:,j,1:3))); colormap winter; colorbar; set(gca,'YDir','normal');ylabel('Rat num');xlabel('Eigenmode');
+        end
+        
+        
+        Mcoef_temp = (Mcoef).^2;
+        for k=1:2   % Mode
+            figure
+            for j=1:3 % Stage
+                subplot(1,3,j); plot(squeeze(Mcoef_temp(:,j,:,k))')
+                hold on; plot(squeeze(mean(Mcoef_temp(:,j,:,k),1)),'r','LineWidth',2)
+            end
+            
+        end
         
     end
     
