@@ -1,5 +1,11 @@
 
 function func_plot_corrcoef_all(rcell,prepostchronic, smoothmode_ts, reload_spks)
+    % This analyzes correlation coefficient between the following:
+        % Low frequency band 6-hour moving average
+        % High freuency band 6-hour moving average
+        % LF 2-day
+        % HF 2-day
+        % SPW rhythm
     
     plot_all_timeseries = 0;
     plot_debug1 = 0;

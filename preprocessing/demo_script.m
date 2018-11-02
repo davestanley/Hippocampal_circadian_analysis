@@ -50,7 +50,7 @@ fs=round(12207/12);
 offset = round(30*fs); len = round(12*fs);
 skip = 0;                                % Sampling rate of extracted data
 [t, x] = extract_anchored_timeseries(ratN,chanN,22,offset,len,skip);
-t = t - t(1); t = t*24*3600;
+t = t - t(1); t = t*24*3600;            % Convert from days to seconds, starts at t=0
 dt = mode(diff(t));
 fs = 1/dt;
 

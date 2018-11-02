@@ -72,13 +72,19 @@ function func_plot_corr_phaseshift(r_seiz,r_ns,r_ctrl,analyze_only_seizing,smoot
         corrcoef_ppc = abs(corrcoef_ppc);
     end
     
-    figure;
+    figure('Position',[680   155   640   823]);
     for j = 1:size(corrcoef_ppc,2)
         subplot(4,1,j); bar(squeeze(corrcoef_ppc(:,j,:)));
         if take_abs ylim([0 1]);
         else ylim([-1 1]);
         end
+        title(['Rat ' num2str(j)]);
+        if j == 2;
+            ylabel('Correlation with frequency shifting band');
+        end
     end
+    xlabel('Freq band number');
+    
     
     addpath(genpath('~/src/ds_kb/funcs_general/lib_dav'))
     

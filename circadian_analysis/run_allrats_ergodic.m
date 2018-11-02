@@ -69,7 +69,7 @@ function run_allrats_ergodic
     %% %%%%%% Plot Choices %%%%%%     
     
         % Time series plots
-    plot_timeseries = 1;
+    plot_timeseries = 0;
         os.shift = 5;
         
         % Figs specifically for paper
@@ -87,10 +87,10 @@ function run_allrats_ergodic
         % Correlation Plots
     plot_corrcoef_EEG_vs_EEG = 0; % IT's okay, this is fast.
     plot_princomp = 0;
-    plot_corr_phaseshift = 0;
+    plot_corr_phaseshift = 0;       % Measure how well each frequency band correlates with the band that phase shifts; plots as a subset of plot_corrcoef_EEG_vs_EEG
     plot_princomp_amp_vs_ampraw = 0; % Correlation coefficient
-    plot_corrcoef_all = 0;
-    plot_EEG_vs_baseline_corr = 0;      % Compare changes in basline to circadian amp. Need to set smoothmode_ts to -1
+    plot_corrcoef_all = 0;              % Look for correlations in everything - EEG amplitude, baseline, and 
+    plot_EEG_vs_baseline_corr = 1;      % Compare changes in basline to circadian amp. Need to set smoothmode_ts to -1
 
     
     
