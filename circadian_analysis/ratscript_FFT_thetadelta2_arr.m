@@ -4,7 +4,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
 
     global tabs_ctrl_1 tabs_ctrl_2 tabs_acute_1 tabs_acute_2 tabs_chr_1 tabs_chr_2 tabs_dark_1 tabs_dark_2
 
-    if (~exist('ratN','var')); ratN=6; end
+    if (~exist('ratN','var')); ratN=9; end
     if (~exist('chanN','var')); chanN=2; end
     if (~exist('theta_band','var')); theta_band=[5 10]; end
     if (~exist('delta_band','var')); delta_band=[1 5]; end
@@ -39,9 +39,9 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
         shift_1st_seizure_time_to_zero = 1;
         
     
-   basepath = '/Users/davestanley/Nex/PhD/Evol_to_epil/Data/RawOneK';
+   basepath = '../data/Raw_ln/Evol_to_epil/Data/RawOneK';
 %      basepath = '/data/SpikeStudyEpileptogenesis';
-  path_ratlog='../Disk_inventory/RatData_out';
+  path_ratlog='../data/Disk_inventory/RatData_out';
 %      path_ratlog=[basepath '/Logs'];
     path_savephase = './Phase_Roll';
 
