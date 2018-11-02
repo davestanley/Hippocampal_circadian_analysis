@@ -215,6 +215,31 @@ function run_allrats_ergodic
     w = 2*pi/1.0;
     alpha = .05;
     
+    % % This is generally not used. See above for description
+    if smoothmode_ts_main ~= 0
+        if analyze_only_seizing==1; num_stages=3; else num_stages = 2; end
+        % Seizing
+        for k=1:num_stages; j=1; r=r4; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r4 = deposit_TX(r4,T(j,:),X(j,:));  % Deposits the extracted T and X values into r{i}.ctrl.d, etc
+        for k=1:num_stages; j=2; r=r9; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r9 = deposit_TX(r9,T(j,:),X(j,:));
+        for k=1:num_stages; j=3; r=r10; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r10 = deposit_TX(r10,T(j,:),X(j,:));
+        for k=1:num_stages; j=4; r=r1; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r1 = deposit_TX(r1,T(j,:),X(j,:));
+        
+        % Non-seizing
+        for k=1:num_stages; j=1; r=r8; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r8 = deposit_TX(r8,T(j,:),X(j,:));  % Deposits the extracted T and X values into r{i}.ctrl.d, etc
+        for k=1:num_stages; j=2; r=r11; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r11 = deposit_TX(r11,T(j,:),X(j,:));
+            
+        % Control
+        for k=1:num_stages; j=1; r=r6; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r6= deposit_TX(r6,T(j,:),X(j,:));  % Deposits the extracted T and X values into r{i}.ctrl.d, etc
+        for k=1:num_stages; j=2; r=r7; [T{j,k} X{j,k}] = extract_ts(r,k, smoothmode_ts_main,0);  end
+            r7 = deposit_TX(r7,T(j,:),X(j,:));
+    end
     
     for i = 1:length(r1)
         % Seizing
