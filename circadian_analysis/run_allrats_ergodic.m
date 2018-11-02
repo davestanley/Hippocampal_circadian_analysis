@@ -87,7 +87,7 @@ function run_allrats_ergodic
         % Correlation Plots
     plot_corrcoef_EEG_vs_EEG = 0; % IT's okay, this is fast.
     plot_princomp = 0;              % Standard PCA analysis
-    plot_princomp2 = 1;             % Look at PCA across stages (pre, post, chronic)
+    plot_princomp2 = 0;             % Look at PCA across stages (pre, post, chronic)
     plot_corr_phaseshift = 0;       % Measure how well each frequency band correlates with the band that phase shifts; plots as a subset of plot_corrcoef_EEG_vs_EEG
     plot_princomp_amp_vs_ampraw = 0; % Correlation coefficient
     plot_corrcoef_all = 0;              % Look for correlations in everything - EEG amplitude, baseline, and 
@@ -98,6 +98,9 @@ function run_allrats_ergodic
         % Not used stuff
     plot_EEG_vs_spks2 = 0;  % New version. Takes into account smoothemode_ts and also has some better plotting options
         reload_spks = 0;
+    plot_EEG_vs_EEG_ampphase_corr = 1;          % This code measure correlation between cosinor amplitude and phase. 
+                                                % I believe it can also be used to generate the moving windo amplitude and phase
+                                                % plots used in my thesis appendix
     plot_movingphase = 0;   % CAn delete
         show_amp = 0;
         
@@ -132,6 +135,10 @@ function run_allrats_ergodic
     
     if plot_corrcoef_all
         prepostchronic = 0;
+    end
+    
+    if plot_EEG_vs_EEG_ampphase_corr
+        prepostchronic = 3;
     end
     
     %% %%%%%%%%%%%%%%%%%%%%%%%%%%% Load data %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -527,7 +534,61 @@ function run_allrats_ergodic
         
     end
 
-    
+    if plot_EEG_vs_EEG_ampphase_corr
+        
+        
+        %prepostchronic = 3;     % 0 for all; 1 for pre; 2 for latency; 3 for chronic
+        plottest_timeseries = 0;    % Set to 1 to generate thesis appendix plots
+
+        i=1;r=r4; [T{i} X{i}] = extract_ts(r, prepostchronic); 
+        i=2;r=r9; [T{i} X{i}] = extract_ts(r, prepostchronic); 
+        i=3;r=r10; [T{i} X{i}] = extract_ts(r, prepostchronic); 
+        i=4;r=r1; [T{i} X{i}] = extract_ts(r, prepostchronic); 
+
+   
+        correlations = zeros(size(sout,1),size(sout,1),length(T));
+        for ampband = 1:size(sout,1)
+            for phaseband = 1:size(sout,1)
+                for i = 1:length(T)
+                    if i == 1; rrat = 4; elseif i == 2; rrat = 9; elseif i == 3; rrat = 10; elseif i == 4; rrat = 1; end
+
+                    T1 = T{i}(:,ampband);
+                    X1 = X{i}(:,ampband);
+                    T2 = T{i}(:,phaseband);
+                    X2 = X{i}(:,phaseband);
+                    if plottest_timeseries
+                        figure;
+                        plot(T1,X1);hold on; plot(T2,X2,'r')
+                        add_stimseiz(rrat,'k','LineWidth',2')
+                    end
+
+                    %xcorr(XS{i},XR{i},0,'coeff')
+                    fhandle_AMP = @(t,y) get_phase_only(t,y,2*pi/1.0,0.2,1);      % Function handel for cross correlation with zero lag
+                    fhandle_PHASE = @(t,y) get_phase_only(t,y,2*pi/1.0,0.2,0);      % Always use PHASE for SPKs
+                    
+%                     why
+%                     make this code more efficient
+                    [Tamp Xamp] = calc_ts_func(T1,X1,2,0.5,0.5,fhandle_AMP);
+                    if plottest_timeseries; hold on; plot(Tamp, Xamp,'b.'); end
+                    [Tphase Xphase] = calc_ts_func(T2,X2,2,0.5,0.5,fhandle_PHASE);
+                    if plottest_timeseries; hold on; plot(Tphase, Xphase,'r.'); end
+
+                    index = ~isnan(Xamp) & ~isnan(Xphase); 
+                    Xamp = Xamp(index); Xphase = Xphase(index); Tamp = Tamp(index); Tphase = Tphase(index);
+
+                    correlations(ampband,phaseband,i) = xcorr(Xamp-mean(Xamp),Xphase-mean(Xphase),0,'coeff');
+
+                end
+            end
+        end
+        
+        for ii = 1:length(T)
+            figure;
+            imagesc((squeeze(correlations(:,:,ii))));
+            colormap(winter);colorbar; set(gca,'YDir','normal','Visible','on','FontSize',20,'XTick',[]); 
+        end
+        
+    end
     
     
     if plot_EEG_vs_baseline_corr
