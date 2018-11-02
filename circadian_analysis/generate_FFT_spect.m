@@ -1,6 +1,7 @@
 
 
 function generate_FFT_spect (ratN, chanN, fname_output)
+    % This function calculatees 2-second PSD bins from the raw data 
 
     if (~exist('ratN','var')); ratN=9; end
     if (~exist('chanN','var')); chanN=2; end
@@ -86,8 +87,9 @@ function [fout Fout tcent] = generate_smoothed_FFT (fname)
     plot_on=0;
     len=round(12207/12)*65;
     len=Inf;
+    timebins = 2; % Duration of time bin in seconds
     
-    [f F t x tcent] = psd_timebins (fname, 2,len, round(12207)/12); % Get spectrogram for each hour of the dataset
+    [f F t x tcent] = psd_timebins (fname, timebins,len, round(12207)/12); % Get spectrogram for each hour of the dataset
 
     for i = 1:length(f)
         [fout{i} Fout{i}] = psd_freqbins (f{i},F{i}, [1 5; 5 10; 12 25; 25 50; 50 90; 90 140; 140 200; 200 500]'); % Bin spectrogram
@@ -108,7 +110,7 @@ end
 function [f_bins F_bins t_bins x_bins tcent_bins] = psd_timebins (fname, timebins, len, fs)
 
     if (~exist('fname','var')); fname='blah.bin'; end
-    if (~exist('timebins','var')); timebins=3600; end % Duration of FFT bins to extract (def 1 hour)
+    if (~exist('timebins','var')); timebins=3600; end % Duration of FFT bins to extract in seconds (def 1 hour)
     if (~exist('len','var')); len=Inf; end % Total length of data to read from specified file
     if (~exist('fs','var')); fs=round(12207/12); end
     
