@@ -793,6 +793,10 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     % The data points captured by prefilter_threshold are usually due to
     % things like saturation (e.g., all 65535 values), whereas the bad data
     % detected by the envelopes may be chewing artifacts, loose wires, etc.
+    % 
+    % Note that although removing the entire file is somewhat conservative,
+    % the data is generally quite good, plus we have tons of it, so this
+    % does not affect things that much
     
     
     if ~invert
@@ -887,7 +891,9 @@ function bad_indices = smartfilter_files (t,d0,fnum,invert,ratN)
     if ratN == 7; bad_files = [bad_files 108:111]; end        % High frequency data explodes near the end. Remove this
 
 
-    %%% Remove bad files
+    %%% Remove ALL data points associated with bad files. This essentially
+    %%% removes the bad files.
+    % Note, this is extremely conservative.
     bad_indices = logical(zeros(1,length(fnum)));
     for i = 1:length(bad_files)
         bad_indices = bad_indices | (fnum == bad_files(i));
