@@ -44,11 +44,9 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
         plot_shift_status_epilepticus_time_to_zero = 0;
         
     
-   basepath = '../data/Raw_ln/Evol_to_epil/Data/RawOneK';
-%      basepath = '/data/SpikeStudyEpileptogenesis';
-  path_ratlog='../data/Disk_inventory/RatData_out';
-%      path_ratlog=[basepath '/Logs'];
-    path_savephase = './Phase_Roll';
+
+    path_ratlog='../data/Disk_inventory/RatData_out';
+
 
     clc
     format compact
