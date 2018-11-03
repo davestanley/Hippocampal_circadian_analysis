@@ -27,7 +27,7 @@ function plot_imagesc_individual(phi,Amp,compare_amp,analyze_only_seizing,za_fai
                     set(gca,'YTickLabel',ylabelcells);
                     clear itemp ylabelcells iindex
                 end
-            xlabel('Pre / Latent / Chronic');
+            xlabel('Healthy / Latent / Seizing');
             ylabel('Freq Band');
         end
     else

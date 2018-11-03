@@ -41,7 +41,7 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
 
     plot_on=1;
         plot_filterdata = 0;                % Plots the results of smartfiler
-        shift_1st_seizure_time_to_zero = 1;
+        plot_shift_status_epilepticus_time_to_zero = 0;
         
     
    basepath = '../data/Raw_ln/Evol_to_epil/Data/RawOneK';
@@ -408,27 +408,31 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             hold on; plot([tabs_acute_2 tabs_acute_2],[0 max(max(dat_sm))],'m','LineWidth',2);
             hold on; plot([tabs_chr_1 tabs_chr_1],[0 max(max(dat_sm))],'r','LineWidth',2);
             hold on; plot([tabs_chr_2 tabs_chr_2],[0 max(max(dat_sm))],'r','LineWidth',2);
+            text((min(ts)+tabs_ctrl_2)/2,max(dat_sm),'Healthy','Color','k','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
+            text((tabs_acute_1+tabs_acute_2)/2,max(dat_sm),'Latent','Color','m','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
+            text((tabs_chr_1+max(ts))/2,max(dat_sm),'Seizing','Color','r','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
             if ratnum == '001';
                 hold on; plot([tabs_dark_1 tabs_dark_1],[0 max(max(dat_sm))],'b','LineWidth',2);
                 hold on; plot([tabs_dark_2 tabs_dark_2],[0 max(max(dat_sm))],'b','LineWidth',2);
             end
             for kk = 1:max(t_sm);
-                hold on; plot([kk kk], [min(min(dat_sm)) max(max(dat_sm))*2],'k-.');
+                hold on; plot([kk kk], [min(min(dat_sm)) max(max(dat_sm))*1.2],'k:');
             end
-            legend('1-hour binned data','6-hour smoothed','1-day smoothed');
+            legend('1-hour bins','6-hour moving average','baseline: 1-day moving average');
             xlabel('Time (days)');
             ylabel ('Power in [extract band]');
             set(gca,'FontSize',FS_axis_timeseries);
+            xlim([min(ts)-1, max(ts)+1]);
         end
 
-        if shift_1st_seizure_time_to_zero && plot_on
+        % Same as previous plot, but don't show 1-hour binned data and also
+        % shift the delivery of status epilepticus to time = 0
+        if plot_shift_status_epilepticus_time_to_zero && plot_on
             day_of_SE = floor(stim_tabs);
 
             figure('Position',[347, 408, 1321, 527]); set(gcf,'Color','w')
-            %hold on; plot(ts-day_of_SE, ds);
-%             xlabel ('Time (days)','FontSize',FS_axis);
-%             ylabel('� EMD Amp','FontSize',FS_axis);
             set(gca,'FontSize',FS_axis);
+            %hold on; plot(ts-day_of_SE, ds,'.b');
             hold on; plot(t_sm-day_of_SE, dat_sm, 'k.','MarkerSize',18); 
             %hold on; plot(t_sm-day_of_SE, dat_basei, 'k')
             hold on; plot(t_base-day_of_SE, dat_base, 'Color',[0 0.5 0],'LineWidth',2);
@@ -438,19 +442,23 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
             hold on; plot([tabs_acute_2 tabs_acute_2]-day_of_SE,[0 max(max(dat_sm))],'m','LineWidth',2);
             hold on; plot([tabs_chr_1 tabs_chr_1]-day_of_SE,[0 max(max(dat_sm))],'r','LineWidth',2);
             hold on; plot([tabs_chr_2 tabs_chr_2]-day_of_SE,[0 max(max(dat_sm))],'r','LineWidth',2);
+            text((min(ts)+tabs_ctrl_2)/2-day_of_SE,max(dat_sm),'Healthy','Color','k','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
+            text((tabs_acute_1+tabs_acute_2)/2-day_of_SE,max(dat_sm),'Latent','Color','m','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
+            text((tabs_chr_1+max(ts))/2-day_of_SE,max(dat_sm),'Seizing','Color','r','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
             if ratnum == '001';
                 hold on; plot([tabs_dark_1 tabs_dark_1]-day_of_SE,[0 max(max(dat_sm))],'b','LineWidth',2);
                 hold on; plot([tabs_dark_2 tabs_dark_2]-day_of_SE,[0 max(max(dat_sm))],'b','LineWidth',2);
             end
             for kk = 1:max(t_sm);
-                hold on; plot([kk kk]-day_of_SE, [min(min(dat_sm)) max(max(dat_sm))*2],'k-.');
+                hold on; plot([kk kk]-day_of_SE, [min(min(dat_sm)) max(max(dat_sm))*1.2],'k:');
             end
-            legend('1-hour binned data','6-hour smoothed','1-day smoothed');
+            legend('6-hour moving average','baseline: 1-day moving average');
             xlabel('Time (days)');
             ylabel ('Power in [extract band]');
             set(gca,'FontSize',FS_axis_timeseries);
             %legend('original','smoothed','baseline');
             %set(gca,'FontSize',FS_axis_timeseries);
+            xlim([min(ts)-day_of_SE-1, max(ts)-day_of_SE+1]);
         end
         
         % Interpolate baseline to be same spacing as t_sm, and do baseline
@@ -460,24 +468,28 @@ function data_struct =  ratscript_FFT_thetadelta2_arr (ratN, chanN,theta_band,de
 
         % Plot baseline subtracted data
         if plot_on
-            figure('Position',[347, 408, 1321, 527]); plot(t_sm, dat_sub,'k.-','MarkerSize',18);
+            figure('Position',[347, 408, 1321, 527]); plot(t_sm, dat_sub,'k','MarkerSize',18);
             hold on; plot([tabs_ctrl_1 tabs_ctrl_1],[min(min(dat_sub)) max(max(dat_sub))],'k');
             hold on; plot([tabs_ctrl_2 tabs_ctrl_2],[min(min(dat_sub)) max(max(dat_sub))],'k');
             hold on; plot([tabs_acute_1 tabs_acute_1],[min(min(dat_sub)) max(max(dat_sub))],'m');
             hold on; plot([tabs_acute_2 tabs_acute_2],[min(min(dat_sub)) max(max(dat_sub))],'m');
             hold on; plot([tabs_chr_1 tabs_chr_1],[min(min(dat_sub)) max(max(dat_sub))],'r');
             hold on; plot([tabs_chr_2 tabs_chr_2],[min(min(dat_sub)) max(max(dat_sub))],'r');
+            text((min(t_sm)+tabs_ctrl_2)/2,max(dat_sub),'Healthy','Color','k','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
+            text((tabs_acute_1+tabs_acute_2)/2,max(dat_sub),'Latent','Color','m','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
+            text((tabs_chr_1+max(t_sm))/2,max(dat_sub),'Seizing','Color','r','FontSize',FS_axis_timeseries,'HorizontalAlignment','center');
             if ratnum == '001';
                 hold on; plot([tabs_dark_1 tabs_dark_1],[min(min(dat_sub)) max(max(dat_sub))],'b','LineWidth',2);
                 hold on; plot([tabs_dark_2 tabs_dark_2],[min(min(dat_sub)) max(max(dat_sub))],'b','LineWidth',2);
             end
             for kk = 1:max(t_sm);
-                hold on; plot([kk kk], [min(min(dat_sub)) max(max(dat_sub))*2],'k-.');
+                hold on; plot([kk kk], [min(min(dat_sub)) max(max(dat_sub))*1.2],'k:');
             end
-            legend('1-hour binned data','6-hour smoothed','1-day smoothed');
+            legend('Baseline-subtracted 6-hour moving average');
             xlabel('Time (days)');
             ylabel ('Power in [extract band]');
-            set(gca,'FontSize',FS_axis_timeseries);            
+            set(gca,'FontSize',FS_axis_timeseries);       
+            xlim([min(t_sm)-1, max(t_sm)+1]);
         end
 
         %     [A phi t_sin] = fit_sinusoids (t_sm, dat_sub, 1.0);
