@@ -17,29 +17,34 @@ function func_plot_PCA(rcell,prepostchronic, smoothmode_ts)
         figure('Color','w');
         hold on; latent_arr = [];
         Nrats = length(X);
-        for i=1:Nrats; [coef, score, latent] = ordered_princomp(T{i},X{i}); plot(cumsum(latent)/sum(latent),'ko','MarkerSize',2,'LineWidth',3); latent_arr = [latent_arr latent]; end
+        for i=1:Nrats; [coef, score, latent] = ordered_princomp(T{i},X{i});
+            plot(cumsum(latent)/sum(latent),'ko','MarkerSize',2,'LineWidth',3); latent_arr = [latent_arr latent];
+        end
         xlabel('Principle Components','FontSize',16);
         ylabel('Power Fraction','FontSize',16);
         
         ylim([0 1]); if length(latent) > 10; xlim([0 8]); end
         hold on; plot([0 8], [0.95 0.95],'k--');
         hold on; plot(cumsum(mean(latent_arr'))/sum(mean(latent_arr')),'rx','MarkerSize',20,'LineWidth',2);
-        set(gca,'FontSize',25)
+        set(gca,'FontSize',15)
 
  
-        
+        % Plot eigenvectors for the first 3 principle components
         figure('Color','w','Position',[20 20  560   420*1.5]); 
         colourarr = 'brgm';
         coefarr = [];
         for i = 1:Nrats
-            [coef, score, latent] = ordered_princomp(T{i},X{i}); for j = 1:3; subplot(3,1,j); hold on; plot(coef(:,j),colourarr(i)); ylabel('Coef','FontSize',16);end % Plot first 3 eigenvectors
+            [coef, score, latent] = ordered_princomp(T{i},X{i}); for j = 1:3; subplot(3,1,j); hold on; plot(coef(:,j),'k');end % Plot first 3 eigenvectors
             coefarr = cat(3,coefarr,coef);
-            
         end
-        for j = 1:3; subplot(3,1,j); hold on; plot(squeeze(mean(coefarr(:,j,:),3)),'r','LineWidth',2); end % Plot first 3 eigenvectors
+        subplot(3,1,1); title('Eigenvectors of first three principle components');
+        
+        % Overlay mean of first 3 eigenvectors
+        for j = 1:3; subplot(3,1,j); hold on; plot(squeeze(mean(coefarr(:,j,:),3)),'r','LineWidth',4); end 
+        
         
         if size(coef,1) > 10
-            for j = 1:3; subplot(3,1,j); set(gca,'XTick',2:3:size(coef,1),'XTickLabel',{},'Box','off','FontSize',20); end
+            for j = 1:3; subplot(3,1,j); set(gca,'XTick',2:3:size(coef,1),'XTickLabel',{},'Box','off','FontSize',16); end
             iindex=0;
             for itemp = 2:3:size(coef,1)
                 iindex=iindex+1;
@@ -49,12 +54,12 @@ function func_plot_PCA(rcell,prepostchronic, smoothmode_ts)
             set(gca,'XTickLabel',ylabelcells,'Box','off');
             clear itemp ylabelcells iindex
         else
-            for j = 1:2; subplot(3,1,j); set(gca,'XTickLabel',{},'Box','off','FontSize',20); end
-            j=3; subplot(3,1,j); set(gca,'Box','off','FontSize',20); 
+            for j = 1:2; subplot(3,1,j); set(gca,'XTickLabel',{},'Box','off','FontSize',16); end
+            j=3; subplot(3,1,j); set(gca,'Box','off','FontSize',16); 
         end
         xlabel('Freq Band','FontSize',16);
         
-        
+        % Plot phase-wrapped score for rat 4
         %figure('Color','w','Position',[20 20 300 800]); % Plot first 3 transformed modes
         figure('Color','w','Position',[ 445   378   460   406]); % Plot first 3 transformed modes
         colourarr = 'brgy';
@@ -243,7 +248,9 @@ function [coef, score, latent] = ordered_princomp(T,X)
     w=2*pi/1;
     alpha=0.05;
 
-    [coef, score, latent] = princomp(X);
+    [coef, score, latent] = pca(X);
+    % Note: score = X * coef (columns of coef are the loadings for each
+    % principal component)
     
     if use_ordered_princomp
         for j = 1:size(coef,2)
@@ -264,11 +271,13 @@ function [coef, score, latent] = ordered_princomp(T,X)
     %             coef(:,j) = -coef(:,j);
     %             score(:,j) = -score(:,j);
     %         end
-
+            % Not sure what this is doing, but I think it's shifting the
+            % signs of the first and 2nd principle components based on the
+            % estimated phase of the 1st component.
             s = cosinor_struct(T,score(:,j),w,alpha); phi = abs(s.phi)/2/pi;
             if (j==1 && (abs(phi-0.5)<0.25))
                 coef(:,j) = -coef(:,j); coef(:,j+1) = -coef(:,j+1);
-                score(:,j) = -score(:,j); coef(:,j+1) = -coef(:,j+1);
+                score(:,j) = -score(:,j); coef(:,j+1) = -coef(:,j+1);       % Shouldn't this be the score?
             end
         end
     end

@@ -69,7 +69,7 @@ function run_allrats_ergodic
     %% %%%%%% Plot Choices %%%%%%     
     
         % Time series plots
-    plot_timeseries = 1;
+    plot_timeseries = 0;
         os.shift = 5;
     plot_FFT = 0;
         
@@ -87,7 +87,7 @@ function run_allrats_ergodic
 
         % Correlation Plots
     plot_corrcoef_EEG_vs_EEG = 0; % IT's okay, this is fast.
-    plot_princomp = 0;              % Standard PCA analysis
+    plot_princomp = 1;              % Standard PCA analysis
     plot_princomp2 = 0;             % Look at PCA across stages (pre, post, chronic)
     plot_corr_phaseshift = 0;       % Measure how well each frequency band correlates with the band that phase shifts; plots as a subset of plot_corrcoef_EEG_vs_EEG
     plot_princomp_amp_vs_ampraw = 0; % Correlation coefficient
