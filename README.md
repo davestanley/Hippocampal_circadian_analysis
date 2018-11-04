@@ -11,7 +11,7 @@ See folder `circadian_analysis` for a demo analyzing circadian rhythms in the da
 
 
 
-Repo set up (Mac / Linux)
+Getting started (Mac / Linux)
 --------
 
 ### Clone main repo
@@ -29,7 +29,7 @@ Repo set up (Mac / Linux)
 	git pull --recurse-submodules	
 
 
-Getting started
+Relevant scripts and functions
 --------
 - `preprocessing/demo_script.m` - A demo of code for preprocessing data and extracting EEG rhythms
 - `circadian_EEGrhythms/ratscript_FFT_thetadelta2_arr.m` - Extracts power in EEG frequency bands for later processing
