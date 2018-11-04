@@ -15,7 +15,6 @@ Getting started (Mac / Linux)
 --------
 
 ### Clone main repo
-
 	git clone --recursive git@github.com:davestanley/Hippocampal_circadian_analysis.git
   
 ### Update submodules
@@ -30,4 +29,8 @@ Getting started (Mac / Linux)
 	git pull --recurse-submodules	
 
 
-	
+Scripts
+--------
+	- preprocessing/demo_script.m - A demo of code for preprocessing data and extracting EEG rhythms
+	- circadian_EEGrhythms/ratscript_FFT_thetadelta2_arr.m - Extracts power in EEG frequency bands for later processing
+	- circadian_EEGrhythms/run_allrats_ergodic.m - Analyzes power in EEG frequency bands. Uses ergodicity assumption
