@@ -26,7 +26,7 @@ Getting started (Mac / Linux)
 ### Set all submodule to correct branches (optional)
 	./checkout_submodules.sh
 
-### When pulling, be sure to also update submodules:
+### When pulling, be sure to also update submodules
 	git pull --recurse-submodules	
 
 
