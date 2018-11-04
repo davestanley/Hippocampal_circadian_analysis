@@ -1,4 +1,4 @@
-Hippocampal_circadian_demo
+Hippocampal_circadian_analysis
 ==========================
 
 Demo of code for analyzing hippocampal circadian rhythms
@@ -16,10 +16,10 @@ Getting started (Mac / Linux)
 
 ### Clone main repo
 
-	git clone --recursive git@github.com:davestanley/Hippocampal_circadian_demo.git
+	git clone --recursive git@github.com:davestanley/Hippocampal_circadian_analysis.git
   
 ### Update submodules
-	cd Hippocampal_circadian_demo
+	cd Hippocampal_circadian_analysis
 	git checkout master
 	git submodule update --init --recursive
 	
