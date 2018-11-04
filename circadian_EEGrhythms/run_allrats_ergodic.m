@@ -1,9 +1,8 @@
 
 function run_allrats_ergodic
-    global freq_band freq_listing
+    %% %%%%%% Global variables %%%%%% 
+    global freq_band
 
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%% Plotting parameters %%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %% %%%%%% Set up paths %%%%%% 
     
@@ -124,6 +123,10 @@ function run_allrats_ergodic
     if plot_on_imagesc_individual || plot_amp_phase_correlation2
         normalize_amps = 1;
             percent_difference = 0;
+    end
+    
+    if plot_timeseries && smoothmode_ts == 1
+        os.shift = 1.5;
     end
     
     if ergodic_mode
@@ -420,9 +423,9 @@ function run_allrats_ergodic
             if analyze_only_seizing == 1
                 switch rat2plot
                     case 1; i=1;r=r4;j=4; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10)
-                        text(2,41,'Healthy','FontSize',20); text(15,41,'Latent','FontSize',20,'Color','m'); text(50,41,'Seizing','FontSize',20,'Color','r')
+                        yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(15,yl2,'Latent','FontSize',20,'Color','m'); text(50,yl2,'Seizing','FontSize',20,'Color','r')
                     case 2; i=2;r=r9;j=9; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10)
-                        text(2,41,'Healthy','FontSize',20); text(15,41,'Latent','FontSize',20,'Color','m'); text(29,41,'Seizing','FontSize',20,'Color','r')
+                        yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(15,yl2,'Latent','FontSize',20,'Color','m'); text(29,yl2,'Seizing','FontSize',20,'Color','r')
                     case 3; i=3;r=r10;j=10; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);h=add_stimseiz2(j); legend('1','2','3','4','5','6','7','8')
                     case 4; i=4;r=r1;j=1; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);h=add_stimseiz2(j); legend('1','2','3','4','5','6','7','8')
 %                 i=2;r=r9;j=9; hold on; plot_matrix2(T{i},X{i},os,'m.','LineWidth',1,'MarkerSize',6);add_stimseiz2(j)
