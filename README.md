@@ -11,7 +11,7 @@ See folder `circadian_analysis` for a demo analyzing circadian rhythms in the da
 
 
 
-Cloning and repo set up (Mac / Linux)
+Repo set up (Mac / Linux)
 --------
 
 ### Clone main repo
