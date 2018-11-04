@@ -24,7 +24,7 @@ Getting started (Mac / Linux)
 	git submodule update --init --recursive
 	
 ### Set all submodule to correct branches (optional)
-	./pull_submodules.sh
+	./checkout_submodules.sh
 
 ### When pulling, be sure to also update submodules:
 	git pull --recurse-submodules	
