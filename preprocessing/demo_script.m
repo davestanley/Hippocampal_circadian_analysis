@@ -28,135 +28,164 @@ addpath('rParabEmd__L');                      % EMD code
 
 %% Load and plot a singe file (7 hours raw data)
 
+% Chosen rat, channel, and file
 ratN = 4;
 chanN = 2;
 fnum = 22;
 offset = 0;
 len = Inf;
 
-skip = 9;               % Only extract every tenth data point to save space (fs = 101.7 Hz)
+% Load highly decimated data
+skip = 9;                                                                           % Extract every tenth data point to save space (fs = 101.7 Hz)                                       
 traw=[];xraw=[];
 [traw, xraw] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 
-% skip = 4;          % Only extract every fifth data point to save space (fs = 203.4 Hz)
-skip = 1;          % Only extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
-% skip = 0;          % Only extract every second data point (fs = 1017 Hz)
+% Load data with denser sampling
+skip = 1;                                                                           % Extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
 [traw2, xraw2] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 % dt = mode(diff(traw2))*24*3600; df = 1/dt
 
+% Plot full dataset
 figure; plot_rawdata2 (traw,xraw);
 keyboardnavigate on
 
-%% Plot some delta and theta transitions
+%% Plot subset of data showing delta-theta transitions
 % (See start of green traces)
+
+% Specify region of interest
 tstart = 6.876; tjump = 0.005; Nblocks = 2; tskip = 0.005;
 TM = buildTimeMatrix(Nblocks,tstart,tjump,tskip);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
-%% Plot some delta and theta transitions
+%% Plot subset of data showing delta-theta transitions
 % (See green traces)
+
+% Specify region of interest
 tstart = 6.767; tjump = 0.001; Nblocks = 4; tskip=0;
 TM = buildTimeMatrix(Nblocks,tstart,tjump,tskip);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
 
-%% Load a bad file - 60 Hz corruption
+%% Load a bad file (showing 60 Hz corruption)
 % Bad files for rat9 are: [31    73    96   142];
 
+% Chosen rat, channel, and file
 ratN = 9;
 chanN = 2;
 fnum = 31;
 offset = 0;
 len = Inf;
 
-skip = 9;          % Only extract every tenth data point to save space (fs = 101.7 Hz)
+% Load highly decimated data
+skip = 9;
 [traw, xraw] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 
-
-skip = 4;          % Only extract every fifth data point to save space (fs = 203.4 Hz). Note, this will introduce some aliasing
-% skip = 1;          % Only extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
-% skip = 0;          % Only extract every second data point (fs = 1017 Hz)
+% Load data with denser sampling
+skip = 4;                                                                       % Extract every fifth data point to save space (fs = 203.4 Hz). Note, this will introduce some aliasing
 [traw2, xraw2] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 % dt = mode(diff(traw2))*24*3600; df = 1/dt
 
+% Plot full dataset
 figure; plot_rawdata2 (traw,xraw);
 keyboardnavigate on
 
 %% Plot a bad region of data
+
+% Specify region of interest
 tstart = 11.255; tjump = 0.01; Nblocks = 3;
 TM = buildTimeMatrix(Nblocks,tstart,tjump);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
 %% Plot a bad region of data
+
+% Specify region of interest
 tstart = 11.34; tjump = 0.003; Nblocks = 3; tskip = 0.007;
 TM = buildTimeMatrix(Nblocks,tstart,tjump,tskip);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
 %% Load and plot a bad file - Seizure
 % Bad files for rat9 are: [31    73    96   142];
 
+% Chosen rat, channel, and file
 ratN = 9;
 chanN = 2;
 fnum = 96;
 offset = 0;
 len = Inf;
 
-skip = 9;          % Only extract every tenth data point to save space (fs = 101.7 Hz)
+% Load highly decimated data
+skip = 9;                                                                       % Extract every tenth data point to save space (fs = 101.7 Hz)
 [traw, xraw] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 
-% skip = 4;          % Only extract every fifth data point to save space (fs = 203.4 Hz)
-skip = 1;          % Only extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
-% skip = 0;          % Only extract every second data point (fs = 1017 Hz)
+% Load data with denser sampling
+skip = 1;                                                                       % Extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
 [traw2, xraw2] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 % dt = mode(diff(traw2))*24*3600; df = 1/dt
 
+% Plot full dataset
 figure; plot_rawdata2 (traw,xraw);
 keyboardnavigate on
 
 
-%% Plot seizure1
+%% Plot 1st seizure
+
+% Specify region of interest
 tstart = 30.5115; tjump = 0.001; Nblocks = 4;
 TM = buildTimeMatrix(Nblocks,tstart,tjump);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
-%% Plot seizure2
+%% Plot 2nd seizure
+
+% Specify region of interest
 tstart = 30.607; tjump = 0.001; Nblocks = 5;
 TM = buildTimeMatrix(Nblocks,tstart,tjump);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
@@ -164,22 +193,23 @@ subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 %% Plot good file with lots of SPWs
 % Bad files for rat9 are: [31    73    96   142];
 
+% Chosen rat, channel, and file
 ratN = 9;
 chanN = 2;
 fnum = 80;
 offset = 0;
 len = Inf;
 
-skip = 9;          % Only extract every tenth data point to save space (fs = 101.7 Hz)
+% Load highly decimated data
+skip = 9;                                                                       % Extract every tenth data point to save space (fs = 101.7 Hz)
 [traw, xraw] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 
-
-% skip = 4;          % Only extract every fifth data point to save space (fs = 203.4 Hz)
-skip = 1;          % Only extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
-% skip = 0;          % Only extract every second data point (fs = 1017 Hz)
+% Load data with denser sampling
+skip = 1;                                                                       % Extract every second data point (fs = 508.5 Hz). Note, this will introduce some aliasing
 [traw2, xraw2] = extract_anchored_timeseries(ratN,chanN,fnum,offset,len,skip);
 % dt = mode(diff(traw2))*24*3600; df = 1/dt
 
+% Plot full dataset
 figure; plot_rawdata2 (traw,xraw);
 keyboardnavigate on
 
@@ -189,10 +219,12 @@ keyboardnavigate on
 tstart = 26.374; tjump = 0.002; Nblocks = 4;
 TM = buildTimeMatrix(Nblocks,tstart,tjump);
 
+% Plot showing region of interest
 figure; plot_rawdata2 (traw,xraw);
 hold on; plotTM(traw,xraw,TM);
 keyboardnavigate on
 
+% Spectrograms
 subplotsTM_specTiled(traw2*24*3600,xraw2,TM*24*3600);
 
 
@@ -211,9 +243,6 @@ fs = 1/dt;
 
 % Plot decomposition
 figure; xarr = plot_frequencydecomp(t,x);
-
-
-
 
 
 %% Plot EMD
