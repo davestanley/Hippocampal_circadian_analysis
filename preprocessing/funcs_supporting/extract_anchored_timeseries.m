@@ -19,7 +19,11 @@ function [t,x] = extract_anchored_timeseries(ratN,chanN,fileN,offset,len,skip)
     channum = num2str(chanN, '%6.2d');
     filenum = num2str(fileN,'%6.4d');
 
-    fname = ['../data/Raw/Evol/RawOneK_partial/Rat004OneK/Rat' ratnum 'ch' channum 'F' filenum '_DownSampled_Dec.bin'];
+    fname = ['../data/Raw_ln/Evol/RawOneK/Rat' ratnum 'OneK/Rat' ratnum 'ch' channum 'F' filenum '_DownSampled_Dec.bin'];              % If mounted data
+    if ~exist(fname,'file')
+        fname = ['../data/Raw/Evol/RawOneK_partial/Rat004OneK/Rat' ratnum 'ch' channum 'F' filenum '_DownSampled_Dec.bin'];         % For local copy of data
+    end
+    
     
     fs=round(12207/12);
     
