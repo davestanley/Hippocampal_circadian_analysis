@@ -12,7 +12,7 @@ function plot_imagesc_individual(phi,Amp,compare_amp,analyze_only_seizing,za_fai
                     phi_plot = phi(:,:,1:2);
                     za_fail_pl = za_fail(:,:,1:2);
                 end
-                imagesc(squeeze(phi_plot(:,j,:))*24);colormap(winter);colorbar; set(gca,'YDir','normal','Visible','on','FontSize',20,'XTick',[]); 
+                imagesc(squeeze(phi_plot(:,j,:))*24);colormap(winter);colorbar; set(gca,'YDir','normal','Visible','on','FontSize',16,'XTick',[]); 
                 h = findall(gca,'Type','image');
                 set (h(1), 'AlphaData', squeeze(~za_fail_pl(:,j,:)));                 % Set transparency to account for error.
 
@@ -27,8 +27,13 @@ function plot_imagesc_individual(phi,Amp,compare_amp,analyze_only_seizing,za_fai
                     set(gca,'YTickLabel',ylabelcells);
                     clear itemp ylabelcells iindex
                 end
-            xlabel('Healthy / Latent / Seizing');
+            if analyze_only_seizing == 1
+                xlabel('Healthy / Latent / Seizing');
+            else
+                xlabel('Healthy / Latent');
+            end
             ylabel('Freq Band');
+            title('Acrophase');
         end
     else
 
@@ -49,7 +54,7 @@ function plot_imagesc_individual(phi,Amp,compare_amp,analyze_only_seizing,za_fai
             %colormap(hottemp(round(end*1/8):round(end*7/8),:));
             colormap(hottemp(1:round(end*4/5),:));
             %colormap(gray)
-            colorbar; set(gca,'YDir','normal','Visible','on','FontSize',20,'XTick',[]); 
+            colorbar; set(gca,'YDir','normal','Visible','on','FontSize',16,'XTick',[]); 
 %                     if normalize_amps; figure; set(gcf,'Color','w'); imagesc(squeeze(Amp_pl(:,j,:)), clims);colormap(hot);colorbar; set(gca,'YDir','normal'); else
 %                     figure; set(gcf,'Color','w'); imagesc(squeeze(Amp_pl(:,j,:)));colormap(hot);colorbar; set(gca,'YDir','normal');  end
             h = findall(gca,'Type','image');
@@ -73,8 +78,13 @@ function plot_imagesc_individual(phi,Amp,compare_amp,analyze_only_seizing,za_fai
                 set(gca,'YTickLabel',ylabelcells);
                 clear itemp clear ylabelcells
             end
-            xlabel('Pre / Latent / Chronic');
+            if analyze_only_seizing == 1
+                xlabel('Healthy / Latent / Seizing');
+            else
+                xlabel('Healthy / Latent');
+            end
             ylabel('Freq Band');
+            title('Amplitude');
         end
         
     end
