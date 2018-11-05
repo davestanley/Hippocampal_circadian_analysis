@@ -53,6 +53,25 @@ function func_plot_phasefits(rcell_curr,analyze_only_seizing,freq_range)
                 end
             end
             linkaxes([ax1,ax2,ax3]);
+            if N == 1
+                axes(ax2);
+                title(['Freq band #' num2str(freq_range(i))]);
+            else
+                freq_range_str = strrep(num2str(freq_range),'  ',',');
+                annotation(gcf,'textbox',...
+                    [0.0081730515191546 0.48625 0.0989392338177015 0.08375],...
+                    'String',{['Freq bands #' freq_range_str]},...
+                    'FontSize',16,...
+                    'FitBoxToText','off');
+                
+                % Create arrow
+                annotation(gcf,'arrow',[0.0568031704095112 0.0581241743725231],...
+                    [0.58025 0.82125]);
+                
+                % Create arrow
+                annotation(gcf,'arrow',[0.0568031704095112 0.0568031704095112],...
+                    [0.4715 0.24125]);
+            end
         end
     end
 

@@ -75,8 +75,9 @@ function run_allrats_ergodic
     plot_FFT = 0;
         
         % Figs specifically for paper
-    plot_phasefits_shiftbands = 1;
-    plot_phasefits_allbands = 0;
+    plot_phasefits = 1;
+        bands2plot = 3;
+        %bands2plot = [1:3 7,8];
     
 
         % Cosinor plots
@@ -682,8 +683,7 @@ function run_allrats_ergodic
         func_plot_corr_phaseshift(r_seiz,r_ns,r_ctrl,analyze_only_seizing,smoothmode_ts);
     end
     
-    if plot_phasefits_allbands || plot_phasefits_shiftbands
-        
+    if plot_phasefits
         if analyze_only_seizing == 1
             rcell_curr = r_seiz(rat2plot);
         elseif analyze_only_seizing == 2
@@ -692,31 +692,8 @@ function run_allrats_ergodic
             rcell_curr = r_ns;
         end
         
-        if plot_phasefits_shiftbands
-            freq_range = [4];
-        else
-            freq_range = [1:3 8];
-        end
+        freq_range = bands2plot;
         func_plot_phasefits(rcell_curr,analyze_only_seizing,freq_range) 
-        if plot_phasefits_allbands
-            annotation(gcf,'textbox',...
-                [0.0081730515191546 0.48625 0.0989392338177015 0.08375],...
-                'String',{'Freq bands #1,2,3,8'},...
-                'FontSize',16,...
-                'FitBoxToText','off');
-            
-            % Create arrow
-            annotation(gcf,'arrow',[0.0568031704095112 0.0581241743725231],...
-                [0.58025 0.82125]);
-
-            % Create arrow
-            annotation(gcf,'arrow',[0.0568031704095112 0.0568031704095112],...
-                [0.4715 0.24125]);
-
-        end
-        if plot_phasefits_shiftbands
-            subplot(132); title('Freq band #4');
-        end
     end
 
     if ergodic_mode
