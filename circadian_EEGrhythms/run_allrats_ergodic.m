@@ -35,7 +35,7 @@ function run_allrats_ergodic
                             % Setting to 2 will return the power in just theta epochs
                             % Setting to 3 will return the power in non-theta epochs
                             % Setting to 0 will return the theta epoch probability (data_binary)
-    rat2plot = 2;           % Values 1-4 correspond to rats 4, 9, 10, and 1, respectively.
+    rat2plot = 1:4;           % Values 1-4 correspond to rats 4, 9, 10, and 1, respectively.
                             % This can also be a range (e.g., 1:4)
 
     % Cosinor analysis
@@ -70,7 +70,7 @@ function run_allrats_ergodic
     %% %%%%%% Plot Choices %%%%%%     
     
         % Time series plots
-    plot_timeseries = 0;
+    plot_timeseries = 1;
         os.shift = 5;
     plot_FFT = 0;
         
@@ -83,7 +83,7 @@ function run_allrats_ergodic
         % Cosinor plots
     plot_on_imagesc_individual = 0;
     plot_amp_phase_correlation2 = 0;
-    plot_bargraph_ergodic = 1;
+    plot_bargraph_ergodic = 0;
         ratrange0 = -1;             % Rat range - which rats to use. -1 = all rats
         compare_theta_delta = 0;
 
@@ -108,7 +108,7 @@ function run_allrats_ergodic
                                                 
                                                 
         % Thesis figure
-    plot_movingphase = 1;       % Plots phase and amplitude changes through a moving window
+    plot_movingphase = 0;       % Plots phase and amplitude changes through a moving window
         show_amp = 0;
         
    
@@ -427,14 +427,21 @@ function run_allrats_ergodic
 
         if plot_timeseries
             if analyze_only_seizing == 1
-                switch rat2plot
-                    case 1; i=1;r=r4;j=4; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10)
-                        yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(15,yl2,'Latent','FontSize',20,'Color','m'); text(50,yl2,'Seizing','FontSize',20,'Color','r')
-                    case 2; i=2;r=r9;j=9; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10)
-                        yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(15,yl2,'Latent','FontSize',20,'Color','m'); text(29,yl2,'Seizing','FontSize',20,'Color','r')
-                    case 3; i=3;r=r10;j=10; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);h=add_stimseiz2(j); legend('1','2','3','4','5','6','7','8')
-                    case 4; i=4;r=r1;j=1; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);h=add_stimseiz2(j); legend('1','2','3','4','5','6','7','8')
-%                 i=2;r=r9;j=9; hold on; plot_matrix2(T{i},X{i},os,'m.','LineWidth',1,'MarkerSize',6);add_stimseiz2(j)
+                for i = rat2plot
+                    switch i
+                        case 1; r=r4;j=4; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10);
+                            yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(-2,yl2,'Healthy','FontSize',20); text(15,yl2,'Latent','FontSize',20,'Color','m'); text(50,yl2,'Seizing','FontSize',20,'Color','r');
+                        case 2; r=r9;j=9; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10);
+                            yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(15,yl2,'Latent','FontSize',20,'Color','m'); text(29,yl2,'Seizing','FontSize',20,'Color','r');
+                        case 3; r=r10;j=10; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10);
+                            yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(20,yl2,'Latent','FontSize',20,'Color','m'); text(29,yl2,'Seizing','FontSize',20,'Color','r');
+                        case 4; r=r1;j=1; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.-','MarkerSize',6);[h1, h2]=add_stimseiz2(j); legend([h1(1) h2(1)],'Stimulation','Seizure','FontSize',10);
+                            yl = ylim; yl2=yl(2)+0.02*(yl(2)-yl(1)); text(2,yl2,'Healthy','FontSize',20); text(20,yl2,'Latent','FontSize',20,'Color','m'); text(29,yl2,'Seizing','FontSize',20,'Color','r');
+    %                 i=2;r=r9;j=9; hold on; plot_matrix2(T{i},X{i},os,'m.','LineWidth',1,'MarkerSize',6);add_stimseiz2(j)
+                    end
+                    ylabel('Freq bands');
+                    xlabel('Time (days)');
+                    set(gca,'FontSize',12)
                 end
             elseif analyze_only_seizing == 2
                     i=8;r=r6;j=6; figure('Color','w','Position',[80 2 788   732]); hold on; plot_matrix2(T{i},X{i},os,'.','MarkerSize',6);add_stimseiz2(j); legend('1','2','3','4','5','6','7','8')
