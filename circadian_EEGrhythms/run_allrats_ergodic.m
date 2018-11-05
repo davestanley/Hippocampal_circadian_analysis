@@ -35,7 +35,8 @@ function run_allrats_ergodic
                             % Setting to 2 will return the power in just theta epochs
                             % Setting to 3 will return the power in non-theta epochs
                             % Setting to 0 will return the theta epoch probability (data_binary)
-    rat2plot = 2;           % Values 1-4 correspond to rats 4, 9, 10, and 1, respectively
+    rat2plot = 2;           % Values 1-4 correspond to rats 4, 9, 10, and 1, respectively.
+                            % This can also be a range (e.g., 1:4)
 
     % Cosinor analysis
     compare_amp = 0;
@@ -664,9 +665,7 @@ function run_allrats_ergodic
         
     end
     
-    
-    if plot_EEG_vs_baseline_corr
-        
+    if plot_EEG_vs_baseline_corr        
         if analyze_only_seizing == 1
             rcell_curr = r_seiz;
         elseif analyze_only_seizing == 2
@@ -678,13 +677,9 @@ function run_allrats_ergodic
         func_plot_EEG_vs_baseline_corr(rcell_curr,prepostchronic, smoothmode_ts)
     end
     
-    
-    
-    if plot_corr_phaseshift
 
-        
+    if plot_corr_phaseshift
         func_plot_corr_phaseshift(r_seiz,r_ns,r_ctrl,analyze_only_seizing,smoothmode_ts);
-        
     end
     
     if plot_phasefits_allbands || plot_phasefits_shiftbands
@@ -698,11 +693,8 @@ function run_allrats_ergodic
         end
         
         if plot_phasefits_shiftbands
-            figure('Color','w','Position',[ 622   544   768   240]);
             freq_range = [4];
-            subplot(131); xlabel('Latent')
         else
-            figure('Color','w','Position',[1500 10  757 800]);
             freq_range = [1:3 8];
         end
         func_plot_phasefits(rcell_curr,analyze_only_seizing,freq_range) 
