@@ -18,31 +18,32 @@ function func_plot_phasefits(rcell_curr,analyze_only_seizing,freq_range)
         r = rcell_curr{j};
         
         for i = 1:length(freq_range)
-            [temp pd] = cosinor_struct(r{freq_range(i)}.ctrl.t,r{freq_range(i)}.ctrl.d,w,alpha,0); subplot(N,3,(N*3+1)-((3)*(i-1)+3)); title(num2str(3*(i-1)+1)); plot_cosinor(pd.t,pd.y,pd.f,w); set(gca,'FontSize',fs_subplot)
+            [temp pd] = cosinor_struct(r{freq_range(i)}.ctrl.t,r{freq_range(i)}.ctrl.d,w,alpha,0); ax1 = subplot(N,3,(N*3+1)-((3)*(i-1)+3)); title(num2str(3*(i-1)+1)); plot_cosinor(pd.t,pd.y,pd.f,w); set(gca,'FontSize',fs_subplot)
             if (N*3+1)-((3)*(i-1)+3) == N*3-2
                 if N>1
-                    xlabel('Healthy');
+                    xlabel('Healthy','Color','b');
                 else
                     legend('Healthy');
                 end
             end        
-            [temp pd] = cosinor_struct(r{freq_range(i)}.acute.t,r{freq_range(i)}.acute.d,w,alpha,0); subplot(N,3,(N*3+1)-((3)*(i-1)+2)); title(num2str(3*(i-1)+2)); plot_cosinor(pd.t,pd.y,pd.f,w); set(gca,'FontSize',fs_subplot)
+            [temp pd] = cosinor_struct(r{freq_range(i)}.acute.t,r{freq_range(i)}.acute.d,w,alpha,0); ax2 = subplot(N,3,(N*3+1)-((3)*(i-1)+2)); title(num2str(3*(i-1)+2)); plot_cosinor(pd.t,pd.y,pd.f,w); set(gca,'FontSize',fs_subplot)
             if (N*3+1)-((3)*(i-1)+3) == N*3-2
                 if N > 1
-                    xlabel('Latent');
+                    xlabel('Latent','Color','m');
                 else
                     legend('Latent');
                 end
             end
-            if analyze_only_seizing == 1; [temp pd] = cosinor_struct(r{freq_range(i)}.chr.t,r{freq_range(i)}.chr.d,w,alpha,0); subplot(N,3,(N*3+1)-((3)*(i-1)+1)); title(num2str(3*(i-1)+3)); plot_cosinor(pd.t,pd.y,pd.f,w); set(gca,'FontSize',fs_subplot);
+            if analyze_only_seizing == 1; [temp pd] = cosinor_struct(r{freq_range(i)}.chr.t,r{freq_range(i)}.chr.d,w,alpha,0); ax3 = subplot(N,3,(N*3+1)-((3)*(i-1)+1)); title(num2str(3*(i-1)+3)); plot_cosinor(pd.t,pd.y,pd.f,w); set(gca,'FontSize',fs_subplot);
                 if (N*3+1)-((3)*(i-1)+3) == N*3-2
                     if N>1
-                        xlabel('Seizing');
+                        xlabel('Seizing','Color','r');
                     else
                         legend('Seizing');
                     end
                 end
             end
+            linkaxes([ax1,ax2,ax3]);
         end
     end
 

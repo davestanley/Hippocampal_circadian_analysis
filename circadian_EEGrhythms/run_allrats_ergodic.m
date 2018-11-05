@@ -74,7 +74,7 @@ function run_allrats_ergodic
     plot_FFT = 0;
         
         % Figs specifically for paper
-    plot_phasefits_shiftbands = 0;
+    plot_phasefits_shiftbands = 1;
     plot_phasefits_allbands = 0;
     
 
@@ -87,7 +87,7 @@ function run_allrats_ergodic
 
         % Correlation Plots
     plot_corrcoef_EEG_vs_EEG = 0; % IT's okay, this is fast.
-    plot_princomp = 1;              % Standard PCA analysis
+    plot_princomp = 0;              % Standard PCA analysis
     plot_princomp2 = 0;             % Look at PCA across stages (pre, post, chronic)
     plot_corr_phaseshift = 0;       % Measure how well each frequency band correlates with the band that phase shifts; plots as a subset of plot_corrcoef_EEG_vs_EEG
     plot_princomp_amp_vs_ampraw = 0; % Correlation coefficient
@@ -117,6 +117,10 @@ function run_allrats_ergodic
     do_gamma_range = 0;
     do_theta_range = 0;
     do_all = 1;
+    
+        
+        % Verbose mode
+    verbose_on = false;
     
     %% %%%%%%%%%%%%%%%%%%%%%%%%%%% Plotting presets for demo %%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -361,7 +365,7 @@ function run_allrats_ergodic
     
     % Shoot out some phase values for Rat 10. Argue that it experiences a
     % minor phase shift
-    if analyze_only_seizing == 1
+    if analyze_only_seizing == 1 && verbose_on
         phi(5,3,1)*24
         confid(5,3,1)*24
 
@@ -704,8 +708,8 @@ function run_allrats_ergodic
         func_plot_phasefits(rcell_curr,analyze_only_seizing,freq_range) 
         if plot_phasefits_allbands
             annotation(gcf,'textbox',...
-                [0.0131730515191546 0.48625 0.0889392338177015 0.08375],...
-                'String',{'Freq bands'},...
+                [0.0081730515191546 0.48625 0.0989392338177015 0.08375],...
+                'String',{'Freq bands #1,2,3,8'},...
                 'FontSize',16,...
                 'FitBoxToText','off');
             
@@ -717,6 +721,9 @@ function run_allrats_ergodic
             annotation(gcf,'arrow',[0.0568031704095112 0.0568031704095112],...
                 [0.4715 0.24125]);
 
+        end
+        if plot_phasefits_shiftbands
+            subplot(132); title('Freq band #4');
         end
     end
 
