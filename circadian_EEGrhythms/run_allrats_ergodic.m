@@ -75,7 +75,7 @@ function run_allrats_ergodic
     plot_FFT = 0;
         
         % Figs specifically for paper
-    plot_phasefits = 1;
+    plot_phasefits = 0;
         bands2plot = 3;
         %bands2plot = [1:3 7,8];
     
@@ -83,7 +83,7 @@ function run_allrats_ergodic
         % Cosinor plots
     plot_on_imagesc_individual = 0;
     plot_amp_phase_correlation2 = 0;
-    ergodic_mode = 0;
+    plot_bargraph_ergodic = 1;
         ratrange0 = -1;             % Rat range - which rats to use. -1 = all rats
         compare_theta_delta = 0;
 
@@ -108,7 +108,7 @@ function run_allrats_ergodic
                                                 
                                                 
         % Thesis figure
-    plot_movingphase = 0;       % Plots phase and amplitude changes through a moving window
+    plot_movingphase = 1;       % Plots phase and amplitude changes through a moving window
         show_amp = 0;
         
    
@@ -135,7 +135,7 @@ function run_allrats_ergodic
         os.shift = 1.5;
     end
     
-    if ergodic_mode
+    if plot_bargraph_ergodic
         normalize_amps = 0;
             percent_difference = 0;
     end
@@ -696,7 +696,7 @@ function run_allrats_ergodic
         func_plot_phasefits(rcell_curr,analyze_only_seizing,freq_range) 
     end
 
-    if ergodic_mode
+    if plot_bargraph_ergodic
         [erg] = ergodic_extract(r1,r4,r9,r10,r5,r8,r11,analyze_only_seizing);
         [phicell Ampcell] = erg_build (erg, ratrange0,analyze_only_seizing);
         
