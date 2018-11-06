@@ -35,7 +35,7 @@ function run_allrats_ergodic
                             % Setting to 2 will return the power in just theta epochs
                             % Setting to 3 will return the power in non-theta epochs
                             % Setting to 0 will return the theta epoch probability (data_binary)
-    rat2plot = 1:4;           % Values 1-4 correspond to rats 4, 9, 10, and 1, respectively.
+    rat2plot = 2;           % Values 1-4 correspond to rats 4, 9, 10, and 1, respectively.
                             % This can also be a range (e.g., 1:4)
 
     % Cosinor analysis
@@ -77,7 +77,7 @@ function run_allrats_ergodic
         % Figs specifically for paper
     plot_phasefits = 0;
         bands2plot = 3;
-        %bands2plot = [1:3 7,8];
+%         bands2plot = [1:3 7,8];
     
 
         % Cosinor plots
