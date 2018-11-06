@@ -70,7 +70,7 @@ function run_allrats_ergodic
     %% %%%%%% Plot Choices %%%%%%     
     
         % Time series plots
-    plot_timeseries = 1;
+    plot_timeseries = 0;
         os.shift = 5;
     plot_FFT = 0;
         
@@ -83,8 +83,9 @@ function run_allrats_ergodic
         % Cosinor plots
     plot_on_imagesc_individual = 0;
     plot_amp_phase_correlation2 = 0;
-    plot_bargraph_ergodic = 0;
+    plot_bargraph_ergodic = 1;
         ratrange0 = -1;             % Rat range - which rats to use. -1 = all rats
+        original_plot = 0;          % Use original bargraph instead of new code using superbar
         compare_theta_delta = 0;
 
         % Correlation Plots
@@ -708,20 +709,21 @@ function run_allrats_ergodic
         [phicell Ampcell] = erg_build (erg, ratrange0,analyze_only_seizing);
         
         phimean = 24*meanCell(phicell); phiste = 24*stdCell(phicell) ./ countCell(phicell); phistd = 24*stdCell(phicell); phiconfid = 24*confidCell(phicell,0.05);
-        figure('color','w','Position', [90   272   934   382]);
-        %figure(1); hold on;
-        bar(phimean);
-        colormap(gray)
-        legend('Pre','Post-L','Post-SS')
-        set(gca,'FontSize',30,'Box','off')
-        set(gca,'YTick',[0:6:30])
-        ylim([0 26]);
-        
-        offset = 0.22;
-        hold on; errorbar([(1:size(phimean,1))-offset; (1:size(phimean,1))+0; (1:size(phimean,1))+offset]',phimean, phiconfid ,'Color',[0.0 0.0 0.0],'Marker','none','LineStyle','none','LineWidth',1)
-        for i = 1:size(phicell,1)
-            for j = 1:size(phicell,2)
-                %hold on; plot( repmat(i+(j-2)*offset,length(phicell{i,j}),1) ,24*phicell{i,j}','.')
+        if original_plot
+            figure('color','w','Position', [90   272   934   382]);
+            bar(phimean);
+            colormap(gray)
+            legend('Pre','Post-L','Post-SS')
+            set(gca,'FontSize',30,'Box','off')
+            set(gca,'YTick',[0:6:30])
+            ylim([0 26]);
+
+            offset = 0.22;
+            hold on; errorbar([(1:size(phimean,1))-offset; (1:size(phimean,1))+0; (1:size(phimean,1))+offset]',phimean, phiconfid ,'Color',[0.0 0.0 0.0],'Marker','none','LineStyle','none','LineWidth',1)
+            for i = 1:size(phicell,1)
+                for j = 1:size(phicell,2)
+                    %hold on; plot( repmat(i+(j-2)*offset,length(phicell{i,j}),1) ,24*phicell{i,j}','.')
+                end
             end
         end
 
@@ -737,57 +739,52 @@ function run_allrats_ergodic
             [prank(i) hrank(i)] = ranksum(phicell{i,1},phicell{i,2});
 %             [prank(i) hrank(i)] = signrank(abs(phi(i,:,1)-phi(i,:,2)));
             if hrank(i)
-                text(i-0.07,phimean(i,2)+phiconfid(i,2)+1,'*','FontSize',30)
+                if original_plot
+                    text(i-0.07,phimean(i,2)+phiconfid(i,2)+1,'*','FontSize',30)
+                end
             end
         end
-        harr
-        hrank
-        parr
-        prank
-        clear N
+        P = [NaN*ones(N,1), prank(:)];
         
-        if analyze_only_seizing
+        if analyze_only_seizing == 1
             N = size(phi,1);
-            harr = [zeros(1,N)];
-            hrank = [zeros(1,N)];
-            parr = [zeros(1,N)];
-            prank = [zeros(1,N)];
+            harr2 = [zeros(1,N)];
+            hrank2 = [zeros(1,N)];
+            parr2 = [zeros(1,N)];
+            prank2 = [zeros(1,N)];
             for i = 1:N
-                [harr(i) parr(i)] = ttest2(phicell{i,1},phicell{i,3});
-                [prank(i) hrank(i)] = ranksum(phicell{i,1},phicell{i,3});
+                [harr2(i) parr2(i)] = ttest2(phicell{i,1},phicell{i,3});
+                [prank2(i) hrank2(i)] = ranksum(phicell{i,1},phicell{i,3});
     %             [prank(i) hrank(i)] = signrank(abs(phi(i,:,1)-phi(i,:,2)));
-                if hrank(i)
-                    text(i-0.07+offset,phimean(i,2)+phiconfid(i,2)+1,'*','FontSize',30)
+                if hrank2(i)
+                    if original_plot
+                        text(i-0.07+offset,phimean(i,2)+phiconfid(i,2)+1,'*','FontSize',30)
+                    end
                 end
             end
-            harr
-            hrank
-            parr
-            prank
-            clear N
+            P = [P, prank2(:)];
+        else
+            P = [P, NaN*ones(N,1)];
+        end
+        
+        if ~original_plot
+            Pbf = P * 16;                   % Bonferroni correction
+            Pbf(Pbf > 0.05) = NaN;          % Remove n.s. markers from superbar plots
+            phiconfid(isnan(phiconfid)) = 0;
+            figure('color','w','Position', [90   272   934   382]);[hbar] = superbar(phimean, 'E',phiconfid, 'P', Pbf,'BarFaceColor',{'b','m','r'});
+            if analyze_only_seizing == 1
+                legend(hbar(1,:),'Healthy','Latent','Seizing')
+            else
+                legend(hbar(1,1:2),'Healthy','Latent')
+            end
+            xlabel('Freq band #'); ylabel('Cosinor Acrophase');
+            set(gca,'FontSize',16,'Box','off')
+            set(gca,'YTick',[0:6:30])
+            ylim([0 26]);
         end
 
-        % Phase shift relative to theta band (for control only)
-        N = size(phi,1);
-        harr = [zeros(1,N)];
-        hrank = [zeros(1,N)];
-        parr = [zeros(1,N)];
-        prank = [zeros(1,N)];
-        for i = 1:N
-            [harr(i) parr(i)] = ttest2(phicell{2,1},phicell{i,1});
-            [prank(i) hrank(i)] = ranksum(phicell{2,1},phicell{i,1});
-            %[prank(i) hrank(i)] = signrank(abs(phi(2,:,1)-phi(i,:,1)));
-                if hrank(i)
-                    %text(i-0.07-offset,phimean(i,1)+phiconfid(i,1)+1,'#','FontSize',20)
-                end
-        end
-        harr
-        hrank
-        parr
-        prank
-        clear N
 
-                Ampmean = meanCell(Ampcell); Ampste = stdCell(Ampcell) ./ countCell(Ampcell); Ampstd = stdCell(Ampcell); Ampconfid = confidCell(Ampcell,0.05);
+        Ampmean = meanCell(Ampcell); Ampste = stdCell(Ampcell) ./ countCell(Ampcell); Ampstd = stdCell(Ampcell); Ampconfid = confidCell(Ampcell,0.05);
                 
                 
         if normalize_amps
@@ -801,7 +798,7 @@ function run_allrats_ergodic
         end
         
         
-        
+        if original_plot
         figure('color','w','Position',[ 445   407   943   292]);
         %figure(3); hold on;
         range=1:8; Ampmean_pl = Ampmean(range,:,:); Ampconfid_pl = Ampconfid(range,:,:); Ampcell_pl = Ampcell(range,:);
@@ -821,6 +818,97 @@ function run_allrats_ergodic
             for j = 1:size(Ampcell_pl,2)
                 %hold on; subplot(1,size(Ampmean_pl,1),i); plot( repmat(j,length(Ampcell_pl{i,j}),1) ,(Ampcell_pl{i,j}'),'.')
             end
+        end
+        
+        for i = 1:size(Ampmean_pl,1);
+            offset=0.22
+            subplot(1,size(Ampmean_pl,1),i); errorbar([1-offset 1 1+offset],(Ampmean_pl(i,:)), (Ampconfid_pl(i,:)),'Color',[0.0 0.0 0.0],'Marker','none','LineStyle','none','LineWidth',1);
+            if htemp; text(1-0.03,(Ampmean_pl(i,2)+Ampconfid_pl(i,2))*1.1,'*','FontSize',30); end
+            if htemp; text(1+offset-0.03,(Ampmean_pl(i,3)+Ampconfid_pl(i,3))*1.1,'*','FontSize',30); end
+        end
+        
+        for i = 1:size(Ampcell_pl,1)
+            for j = 1:size(Ampcell_pl,2)
+                %hold on; subplot(1,size(Ampmean_pl,1),i); plot( repmat(j,length(Ampcell_pl{i,j}),1) ,(Ampcell_pl{i,j}'),'.')
+            end
+        end
+        end
+        
+        if ~original_plot
+                % Phase shift in each frequency band
+            N = size(Amp,1);
+            harr = [zeros(1,N)];
+            hrank = [zeros(1,N)];
+            parr = [zeros(1,N)];
+            prank = [zeros(1,N)];
+
+            for i = 1:N
+                [harr(i) parr(i)] = ttest2(Ampcell{i,1},Ampcell{i,2});
+                [prank(i) hrank(i)] = ranksum(Ampcell{i,1},Ampcell{i,2});
+    %             [prank(i) hrank(i)] = signrank(abs(phi(i,:,1)-phi(i,:,2)));
+            end
+            P = [NaN*ones(N,1), prank(:)];
+            
+            if analyze_only_seizing == 1
+                harr2 = [zeros(1,N)];
+                hrank2 = [zeros(1,N)];
+                parr2 = [zeros(1,N)];
+                prank2 = [zeros(1,N)];
+                for i = 1:N
+                    [harr2(i) parr2(i)] = ttest2(Ampcell{i,1},Ampcell{i,3});
+                    [prank2(i) hrank2(i)] = ranksum(Ampcell{i,1},Ampcell{i,3});
+                    %             [prank(i) hrank(i)] = signrank(abs(phi(i,:,1)-phi(i,:,2)));
+                end
+                P = [P, prank2(:)];
+            else
+                P = [P, NaN*ones(N,1)];
+            end
+
+            
+            separate_subplots = 1;
+            
+            figure('color','w','Position', [190   72   934   382]);
+            %figure(3); hold on;
+            range=1:8; Ampmean_pl = Ampmean(range,:,:); Ampconfid_pl = Ampconfid(range,:,:); Ampcell_pl = Ampcell(range,:); Ampste_pl = Ampste(range,:,:);
+            %Ampmean_pl = Ampmean; Ampconfid_pl = Ampconfid; Ampcell_pl = Ampcell;
+            
+            
+            Pbf = P * 16;                   % Bonferroni correction
+            Pbf(Pbf > 0.05) = NaN;          % Remove n.s. markers from superbar plots
+            Ampconfid(isnan(Ampconfid)) = 0;
+            
+            if separate_subplots
+                for i = 1:size(Ampmean_pl,1)
+                    subplot(1,size(Ampmean_pl,1),i);
+
+
+                    %figure('color','w','Position', [90   272   934   382]);[hbar] = superbar(phimean, 'E',phiconfid, 'P', Pbf,'BarFaceColor',{'b','m','r'});
+                    hbar = superbar([Ampmean_pl(i,:); [0 0 0]],'E',[Ampconfid(i,:); [0 0 0]],'P',[Pbf(i,:);NaN*[1,1,1]],'BarFaceColor',{'b','m','r'});
+                    xlim([0.5 1.5]);
+                    if i == size(Ampmean_pl,1)
+                        if analyze_only_seizing == 1
+                            legend(hbar(1,:),'Healthy','Latent','Seizing')
+                        else
+                            legend(hbar(1,1:2),'Healthy','Latent')
+                        end
+                    end
+                    set(gca,'XTick',[1]); set(gca,'XTickLabel',{num2str(i)});
+                    if i == round(mean([1,size(Ampmean_pl,1)]))
+                        xlabel(['Freq band #']);
+                    end
+                    %xlabel(['Freq# ' num2str(i)]); 
+                    
+                    if i == 1; ylabel('Cosinor amp');end
+                    set(gca,'FontSize',16,'Box','off')
+                end
+            else
+                scale_factor = 10^12;  % Some random scale factor to make bars positive
+                Amp_temp = log(Ampconfid*scale_factor);
+                Amp_temp(isinf(Amp_temp)) = 0;
+                hbar = superbar(log(Ampmean_pl*scale_factor),'E',Amp_temp,'P',[Pbf],'BarFaceColor',{'b','m','r'});
+
+            end
+            
         end
         
 
