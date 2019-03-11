@@ -286,7 +286,8 @@ hold on; plot_thetahighlight(t,x,theta_delta_ratio);
 path_theta = (fullfile('..','data','Anco','Evol','EEG','RatFFT','03_theta_delta_2sec_bins','Manual_compare_theta'));
 
 % Load a set of 2-second epochs
-st = load(fullfile(path_theta,'RAll4_CT10_14.mat'));
+% st = load(fullfile(path_theta,'RAll4_CT10_14.mat'));
+st = load(fullfile(path_theta,'RAll4_CT10_14_Rat9_Only.mat'));
 tep = st.r09_pre.twin;
 xep = zscore(st.r09_pre.xwin);
 dt = mode(diff(tep(:,1)));
@@ -296,7 +297,7 @@ fs = 1/dt;
 %figure; plot_matrix3D(tep(:,1),xep(:,1:10),'active_dim',3,'do_shift',3,'fs',fs); pause
 
 % My manual classification (yes, no, yes, no)
-figure('Position',[92 384 1364 356]); plot_ani(tep(:,1),xep(:,1:10),'fs',fs,'fname',@plot_all, 'plotargs',{'axis_lims',[0 20],'Nwind',0.5*fs,'fsubplot',@subplotcols});
+figure('Position',[92 384 1364 356]); plott_ani(tep(:,1),xep(:,1:10),'fs',fs,'fname',@plott_all, 'plotargs',{'axis_lims',[0 20],'Nwind',0.5*fs,'fsubplot',@subplotcols});
 % figure('Position',[92 384 1364 356]); plot_ani(tep(:,1),xep(:,1:10),'fs',fs,'fname',{@plot_fs, @plot_spect}, 'plotargs',{'axis_lims',[0 20]});
 
 

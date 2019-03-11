@@ -75,15 +75,15 @@ function run_allrats_ergodic
     plot_FFT = 0;
         
         % Figs specifically for paper
-    plot_phasefits = 0;
+    plot_phasefits = 1;
         bands2plot = 3;
-%         bands2plot = [1:3 7,8];
+        bands2plot = [1:3 7,8];
     
 
         % Cosinor plots
     plot_on_imagesc_individual = 0;
     plot_amp_phase_correlation2 = 0;
-    plot_bargraph_ergodic = 1;
+    plot_bargraph_ergodic = 0;
         ratrange0 = -1;             % Rat range - which rats to use. -1 = all rats
         original_plot = 0;          % Use original bargraph instead of new code using superbar
         compare_theta_delta = 0;
